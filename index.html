@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ingénieur Sécurité Offensif</title>
+  <style>
+    :root {
+      --bg-color: #0e0e10;
+      --accent-color: #2a9d8f;
+      --text-color: #f1faee;
+      --secondary-color: #1d1f21;
+      --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    [data-theme="light"] {
+      --bg-color: #ffffff;
+      --text-color: #111111;
+      --secondary-color: #f0f0f0;
+      --accent-color: #2a9d8f;
+    }
+
+    html, body {
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: var(--font);
+      background: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    main {
+      flex: 1;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--secondary-color);
+      color: var(--text-color);
+      border: 2px solid var(--accent-color);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.2rem;
+      z-index: 1000;
+      transition: background 0.3s ease;
+    }
+
+    header {
+      background: var(--secondary-color);
+      padding: 2rem;
+      text-align: center;
+      animation: fadeInDown 1s ease-in-out;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      color: var(--accent-color);
+    }
+
+    header p {
+  font-size: 1.2rem;
+  color: #ccc;
+}
+
+[data-theme="light"] header p {
+  color: #111;
+}
+
+    section {
+      padding: 2rem;
+      max-width: 900px;
+      margin: auto;
+      animation: fadeIn 1.5s ease-in-out;
+    }
+
+    .services {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+    }
+
+    .card {
+      background: var(--secondary-color);
+      padding: 1.5rem;
+      border-left: 5px solid var(--accent-color);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 30px rgba(0,0,0,0.6);
+    }
+
+    .card h3 {
+      margin-top: 0;
+      color: var(--accent-color);
+    }
+
+    footer {
+      background: #111;
+      color: #888;
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.9rem;
+      animation: fadeInUp 1.5s ease-in-out;
+    }
+
+    .social-links a {
+      margin: 0 1rem;
+      text-decoration: none;
+      font-size: 1.5rem;
+      transition: transform 0.3s ease;
+      display: inline-block;
+    }
+
+    .social-links a:hover {
+      transform: scale(1.2);
+    }
+
+    .social-links img {
+      width: 32px;
+      height: 32px;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(20px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
+    @keyframes fadeInDown {
+      from {opacity: 0; transform: translateY(-20px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
+    $1
+
+    
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+      to {opacity: 1; transform: translateY(0);}
+    }
+  </style>
+</head>
+<body>
+  <div class="theme-toggle" onclick="toggleTheme()">🌓</div>
+  <main>
+    <header>
+      <h1>Ingénieur Sécurité Offensif</h1>
+      <p>PNO</p>
+    </header>
+
+    <section>
+      <h2>Mes Services</h2>
+      <div class="services">
+        <div class="card">
+          <h3>Audit de sécurité</h3>
+          <p>Évaluation approfondie de vos systèmes pour identifier les failles de sécurité et proposer des solutions concrètes.</p>
+        </div>
+        <div class="card">
+          <h3>Pentest</h3>
+          <p>Simulation d'attaques réelles pour tester la résilience de vos infrastructures et applications.</p>
+        </div>
+        <div class="card">
+          <h3>Red Teaming</h3>
+          <p>Approche offensive complète pour tester l'efficacité globale de votre sécurité face à des menaces avancées.</p>
+        </div>
+      </div>
+    </section>
+
+ <section>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; align-items: start;">
+	  
+	   <div>
+          <h2>Mes Certifications</h2>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <div style="text-align: center;">
+			<a href="https://www.credential.net/8f4d1d05-8d3d-458c-a5fa-160b633c896f#gs.envbmd" target="_blank">
+              <img src="https://templates.images.credential.net/1677682410975725023965573912354.png" alt="OSCP" style="width: 50px; height: 55px;">  
+            </a>			  
+            </div>
+            <div style="text-align: center;">
+			<a href="https://certs.ine.com/646458d3-c25c-44be-8127-1b3c81eb08b9#acc.zCE1JBiR" target="_blank">
+              <img src="https://templates.images.credential.net/16947190403078086581199361007762.png" alt="eCPPT" style="width: 65px; height: 70px;"> 
+            </a>			  
+            </div>
+          </div>
+        </div>
+        <div>
+          <h2>Contacts</h2>
+           <div class="social-links">
+            <a href="https://www.linkedin.com/in/prudencioo/" target="_blank">
+              <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/linkedin.svg" alt="LinkedIn" style="filter: invert(0.5) sepia(1) saturate(4) hue-rotate(190deg);">
+            </a>
+            <a href="mailto:">
+              <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/gmail.svg" alt="Email" style="filter: invert(0.5) sepia(1) saturate(4) hue-rotate(190deg);">
+            </a>
+          </div>
+        </div>
+       
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    &copy; 2025 PNO - Tous droits réservés.
+  </footer>
+
+  <script>
+    // Animation de révélation des cartes au scroll
+    const cards = document.querySelectorAll('.card');
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, {
+      threshold: 0.5
+    });
+
+    cards.forEach(card => observer.observe(card));
+
+    // Toggle thème sombre / clair
+    function toggleTheme() {
+      const html = document.documentElement;
+      html.dataset.theme = html.dataset.theme === 'light' ? '' : 'light';
+    }
+  document.addEventListener('contextmenu', event => event.preventDefault());
+  document.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey && e.key === 'u') ||
+          (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'i') ||
+          (e.key === 'F12')) {
+        e.preventDefault();
+      }
+    });
+  </script>
+</body>
+</html>
