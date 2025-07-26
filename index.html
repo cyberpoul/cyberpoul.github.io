@@ -149,6 +149,21 @@
       height: 32px;
     }
 
+    .info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  align-items: start;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
     @keyframes fadeIn {
       from {opacity: 0; transform: translateY(20px);}
       to {opacity: 1; transform: translateY(0);}
@@ -195,7 +210,7 @@
     </section>
 
 <section>
-  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; align-items: start; text-align: center;">
+  <div class="info-grid">
 
     
     <div>
