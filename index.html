@@ -238,9 +238,10 @@
 </svg>
         </a>
         <a href="https://assa.medium.com/" target="_blank">
-<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" style="fill: #2a9d8f;" viewBox="0 0 24 24">
-  <path d="M2 4.75C2 3.23 3.23 2 4.75 2h14.5C20.77 2 22 3.23 22 4.75v14.5c0 1.52-1.23 2.75-2.75 2.75H4.75C3.23 22 2 20.77 2 19.25V4.75zm15.64 4.41c-.04-.14-.13-.26-.25-.33l-1.59-.77a.35.35 0 0 0-.51.3v6.98c.01.12.07.24.17.31l1.59.77c.23.11.5-.06.5-.31V9.16zm-2.57.1c0-.12-.05-.24-.14-.32l-1.94-1.89a.37.37 0 0 0-.62.26v8.38c0 .21.24.33.41.2l2.29-1.76c.06-.05.1-.13.1-.21V9.26zm-4.3-.46c0-.18-.2-.27-.34-.16L6.2 10.63a.25.25 0 0 0 0 .4l4.23 2.92c.15.1.35-.01.35-.2V8.8z"/>
-</svg>        </a>
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 1043.63 592.71" fill="#2a9d8f">
+  <path d="M588.67 296.36c0 163.67-131.29 296.35-293.34 296.35S2 460 2 296.36 133.29 0 295.33 0s293.34 132.69 293.34 296.36zM799.07 296.36c0 151.78-68.12 274.94-152.12 274.94s-152.12-123.16-152.12-274.94 68.12-274.94 152.12-274.94 152.12 123.16 152.12 274.94zM1041.63 296.36c0 145.49-31.64 263.42-70.67 263.42s-70.67-118.05-70.67-263.42 31.64-263.42 70.67-263.42 70.67 118.05 70.67 263.42z"/>
+</svg>
+        </a>
       </div>
     </div>
 
@@ -256,7 +257,7 @@
   </footer>
 
   <script>
-    // Animation de révélation des cartes au scroll
+    
     const cards = document.querySelectorAll('.card');
 
     const observer = new IntersectionObserver(entries => {
@@ -271,7 +272,7 @@
 
     cards.forEach(card => observer.observe(card));
 
-    // Toggle thème sombre / clair
+    
     function toggleTheme() {
       const html = document.documentElement;
       html.dataset.theme = html.dataset.theme === 'light' ? '' : 'light';
