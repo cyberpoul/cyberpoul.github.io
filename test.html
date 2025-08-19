@@ -4,342 +4,218 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Prudencio N. — Ingénieur Cybersécurité</title>
-  <meta name="description" content="Ingénieur cybersécurité – audit, pentest, red teaming. Portfolio sobre, moderne et dynamique avec thème hacker." />
+  <meta name="description" content="Ingénieur cybersécurité – audit, pentest, red teaming. Version compacte, sobre et lisible (sans scroll)." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
     /* --------------------
-       Design System
+       Palette & typo (contrast fort en clair)
     -------------------- */
     :root {
-      --bg: #0b0d0f;             /* fond noir bleuté */
-      --panel: #0f1216;          /* carte */
-      --panel-2: #11151a;        
-      --text: #e8f0f2;           /* texte principal */
-      --muted: #9aa7b1;          /* texte secondaire */
-      --accent: #00e694;         /* vert néon */
-      --accent-2: #2a9d8f;       /* vert-bleu doux */
-      --danger: #ff5d5d;
-      --ok: #68f3c6;
-      --ring: rgba(0, 230, 148, .25);
-      --shadow: 0 10px 30px rgba(0,0,0,.55);
-      --radius: 16px;
+      --bg: #0b0d0f;
+      --panel: #121519;
+      --panel-2: #151a1f;
+      --text: #e8f0f2;
+      --muted: #a8b3bd;
+      --accent: #00c785;
+      --border: rgba(255,255,255,.12);
+      --radius: 14px;
+      --shadow: 0 6px 24px rgba(0,0,0,.35);
       --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       --sans: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
     }
     [data-theme="light"] {
       --bg: #ffffff;
-      --panel: #f4f6f8;
-      --panel-2: #eef1f4;
-      --text: #111418;
-      --muted: #58636e;
-      --accent: #007d4f;
-      --accent-2: #0f766e;
-      --ring: rgba(0, 125, 79, .25);
+      --panel: #f7f9fb;         /* fond des cartes (clair) */
+      --panel-2: #f1f5f9;       /* fond alternatif */
+      --text: #0e1116;          /* texte principal (très sombre) */
+      --muted: #2f3a45;         /* texte secondaire lisible */
+      --accent: #0d7f62;        /* vert désaturé */
+      --border: #d7dee6;        /* bordure visible en clair */
+      --shadow: 0 6px 24px rgba(15, 23, 42, .06);
     }
 
     /* --------------------
-       Base
+       Base (sans scroll)
     -------------------- */
     * { box-sizing: border-box; }
     html, body { height: 100%; }
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: auto; }
     body {
-      margin: 0; background: radial-gradient(1200px 800px at 80% -10%, rgba(0,230,148,.08), transparent), var(--bg); color: var(--text);
-      font-family: var(--sans); line-height: 1.55; overflow-x: hidden;
+      margin: 0; background: var(--bg); color: var(--text);
+      font-family: var(--sans); line-height: 1.45; overflow: hidden; /* pas de scroll */
     }
     a { color: inherit; text-decoration: none; }
-    .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
 
-    /* Subtle grid background */
-    .grid-bg::before {
-      content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -1;
-      background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
-      background-size: 40px 40px;
-      opacity: .35;
-    }
+    /* Conteneur à échelle adaptative pour tenir dans l'écran */
+    #fit { display: grid; place-items: start center; transform-origin: top center; padding-top: 16px; }
+    .wrap { width: min(1100px, 96vw); border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); box-shadow: var(--shadow); padding: 16px; }
 
-    /* --------------------
-       Top Bar & Theme Toggle
-    -------------------- */
-    .topbar { position: sticky; top: 0; z-index: 50; backdrop-filter: blur(8px); background: color-mix(in oklab, var(--bg) 85%, transparent); border-bottom: 1px solid rgba(255,255,255,.06); }
-    .topbar-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 0; }
-    .brand { display:flex; align-items:center; gap:10px; }
-    .logo {
-      width: 28px; height: 28px; border-radius: 8px; display:grid; place-items:center; font: 700 16px var(--mono);
-      background: conic-gradient(from 210deg at 50% 50%, var(--accent) 0 25%, transparent 25% 50%, var(--accent-2) 50% 75%, transparent 75%);
-      box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 0 15px rgba(0,230,148,.25);
-      color: #0b0d0f;
-    }
-    nav a { color: var(--muted); margin-left: 18px; font-weight: 600; }
-    nav a:hover { color: var(--text); }
-    .toggle {
-      border: 1px solid rgba(255,255,255,.12); background: var(--panel); color: var(--text);
-      width: 42px; height: 42px; border-radius: 50%; display:grid; place-items:center; cursor:pointer; box-shadow: var(--shadow);
-    }
-    .toggle:focus-visible { outline: 3px solid var(--ring); }
+    /* En-tête compact */
+    .head { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 6px 8px 12px; border-bottom: 1px solid var(--border); }
+    .id { display:flex; align-items:center; gap: 10px; }
+    .logo { width: 28px; height: 28px; border-radius: 8px; display:grid; place-items:center; font: 700 14px var(--mono); color:#0b0d0f; background: linear-gradient(135deg, var(--accent), #55f2ff); }
+    .title { margin: 0; font-weight: 800; letter-spacing: -0.02em; font-size: clamp(16px, 2.2vw, 20px); }
+    .subtitle { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
 
-    /* --------------------
-       Hero / Terminal card
-    -------------------- */
-    header.hero { position: relative; padding: 72px 0 48px; }
-    .hero-wrap { display:grid; grid-template-columns: 1.1fr .9fr; gap: 32px; align-items: center; }
-    @media (max-width: 900px){ .hero-wrap{ grid-template-columns: 1fr; } }
+    .actions { display:flex; gap: 8px; align-items: center; }
+    .btn { padding: 8px 10px; font-weight: 700; border-radius: 10px; border: 1px solid var(--border); background: var(--panel-2); }
+    .btn:hover { border-color: var(--accent); }
+    .toggle { width: 38px; height: 38px; border-radius: 10px; display:grid; place-items:center; border: 1px solid var(--border); background: var(--panel-2); cursor: pointer; }
 
-    .title { font-size: clamp(32px, 5vw, 56px); margin: 0 0 10px; font-weight: 800; letter-spacing: -0.02em; }
-    .title .accent { background: linear-gradient(90deg, var(--accent), #47f4ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
-    .subtitle { margin: 0 0 24px; color: var(--muted); font-size: clamp(16px, 2.2vw, 18px); }
+    /* Grille contenu unique écran */
+    .grid { display: grid; grid-template-columns: 1.2fr .8fr; grid-template-rows: auto 1fr auto; gap: 12px; padding: 12px 6px 6px; }
+    @media (max-width: 860px){ .grid { grid-template-columns: 1fr; grid-template-rows: auto auto auto; } }
 
-    .cta { display:flex; gap: 12px; flex-wrap: wrap; }
-    .btn {
-      padding: 12px 16px; border-radius: 12px; font-weight: 700; border: 1px solid rgba(255,255,255,.12); background: var(--panel);
-      transition: transform .15s ease, box-shadow .2s ease, border-color .2s ease; box-shadow: var(--shadow);
-    }
-    .btn:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: 0 12px 40px rgba(0,230,148,.15); }
-    .btn.primary { background: linear-gradient(180deg, color-mix(in oklab, var(--accent) 30%, transparent), transparent), var(--panel-2); border-color: rgba(0,230,148,.35); }
-
-    .terminal {
-      background: radial-gradient(600px 200px at 10% -10%, rgba(0,230,148,.15), transparent), var(--panel);
-      border: 1px solid rgba(255,255,255,.08); border-radius: var(--radius); box-shadow: var(--shadow); font-family: var(--mono);
-      padding: 18px; position: relative; overflow: hidden;
-    }
-    .terminal .dots { display:flex; gap:8px; margin-bottom: 12px; }
-    .terminal .dot { width:10px; height:10px; border-radius:50%; background:#2d3436; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
-    .terminal pre { margin: 0; white-space: pre-wrap; color: #d8f3dc; }
-    .caret { display:inline-block; width: 10px; background: var(--accent); animation: blink 1.1s steps(1) infinite; }
+    /* Terminal très discret */
+    .terminal { font-family: var(--mono); background: var(--panel-2); border: 1px solid var(--border); border-radius: 12px; padding: 10px; }
+    .terminal pre { margin: 0; font-size: 12px; white-space: pre-wrap; }
+    .caret { display:inline-block; width: 8px; background: var(--accent); animation: blink 1s steps(1) infinite; }
     @keyframes blink { 50% { opacity: 0; } }
 
-    /* --------------------
-       Sections
-    -------------------- */
-    section { padding: 56px 0; }
-    .section-title { font-size: 22px; margin: 0 0 24px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    /* Services condensés */
+    .cards { display:grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    @media (max-width: 860px){ .cards { grid-template-columns: 1fr 1fr 1fr; } }
+    @media (max-width: 640px){ .cards { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 460px){ .cards { grid-template-columns: 1fr; } }
 
-    .cards { display:grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-    @media (max-width: 920px){ .cards{ grid-template-columns: 1fr 1fr; } }
-    @media (max-width: 640px){ .cards{ grid-template-columns: 1fr; } }
+    .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 12px; padding: 10px; }
+    .card h3 { margin: 0 0 4px; font-size: 14px; }
+    .card p  { margin: 0; font-size: 12px; color: var(--muted); }
 
-    .card {
-      background: var(--panel); border: 1px solid rgba(255,255,255,.08); border-radius: var(--radius);
-      padding: 20px; position: relative; overflow: hidden; transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
-      box-shadow: var(--shadow);
-    }
-    .card:hover { transform: translateY(-4px); border-color: rgba(0,230,148,.35); box-shadow: 0 15px 45px rgba(0,230,148,.15); }
-    .card h3 { margin: 6px 0 8px; font-size: 18px; color: var(--text); }
-    .card p { margin: 0; color: var(--muted); }
-    .card .icon { width: 28px; height: 28px; opacity: .9; }
+    /* Badges + liens très compacts */
+    .row { display:flex; gap: 8px; align-items:center; flex-wrap: wrap; }
+    .badge { display:flex; align-items:center; gap: 8px; padding: 6px 8px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--border); font-weight: 600; font-size: 12px; }
+    .badge img { width: 28px; height: 28px; object-fit: contain; }
+    .chip { padding: 6px 8px; border-radius: 10px; border: 1px solid var(--border); background: var(--panel-2); font-weight: 700; font-size: 12px; }
 
-    /* reveal animation */
-    .reveal { opacity: 0; transform: translateY(16px); filter: blur(2px); }
-    .reveal.visible { opacity: 1; transform: translateY(0); filter: blur(0); transition: all .6s cubic-bezier(.2,.8,.2,1); }
+    .foot { display:flex; justify-content: space-between; align-items:center; gap: 8px; border-top: 1px solid var(--border); padding-top: 8px; margin-top: 8px; color: var(--muted); font-size: 12px; }
 
-    /* Certifications */
-    .certs { display:flex; gap: 14px; flex-wrap: wrap; }
-    .badge {
-      background: var(--panel-2); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 10px 12px; display:flex; align-items:center; gap: 10px;
-      transition: transform .2s ease, border-color .2s ease;
-    }
-    .badge:hover { transform: translateY(-3px); border-color: rgba(0,230,148,.35); }
-    .badge img { width: 42px; height: 42px; object-fit: contain; }
-    .badge span { font-weight: 600; }
-
-    /* Socials */
-    .links { display:flex; gap: 14px; flex-wrap: wrap; }
-    .link {
-      background: var(--panel); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 10px 12px; display:flex; align-items:center; gap: 10px;
-      font-weight: 700; color: var(--text); box-shadow: var(--shadow); transition: transform .2s ease, border-color .2s ease;
-    }
-    .link:hover { transform: translateY(-2px); border-color: rgba(0,230,148,.35); }
-    .link svg { width: 20px; height: 20px; }
-
-    /* Footer */
-    footer { border-top: 1px solid rgba(255,255,255,.08); padding: 28px 0 56px; color: var(--muted); text-align:center; }
-
-    /* Reduced motion */
-    @media (prefers-reduced-motion: reduce) {
-      * { animation: none !important; transition: none !important; }
-    }
-
-    /* Matrix rain canvas sits behind content */
-    #fx { position: fixed; inset: 0; z-index: -2; opacity: .12; }
-    [data-theme="light"] #fx { opacity: .06; }
+    /* Respecte reduced-motion (pas d'effets superflus) */
+    @media (prefers-reduced-motion: reduce){ .caret { animation: none; } }
   </style>
 </head>
-<body class="grid-bg">
-  <canvas id="fx" aria-hidden="true"></canvas>
+<body>
+  <div id="fit">
+    <div class="wrap">
+      <!-- En-tête -->
+      <header class="head">
+        <div class="id">
+          <div class="logo">PN</div>
+          <div>
+            <h1 class="title">Prudencio N. — Ingénieur Cybersécurité</h1>
+            <p class="subtitle">Audit · Pentest · Red Teaming — version compacte, lisible, sans scroll</p>
+          </div>
+        </div>
+        <div class="actions">
+          <a class="btn" href="mailto:ing.pno@proton.me">Email</a>
+          <a class="btn" href="https://www.linkedin.com/in/prudencioo/" target="_blank" rel="noopener">LinkedIn</a>
+          <a class="btn" href="https://github.com/cyberpoul" target="_blank" rel="noopener">GitHub</a>
+          <button id="themeToggle" class="toggle" aria-label="Basculer le thème" title="Basculer le thème">🌗</button>
+        </div>
+      </header>
 
-  <div class="topbar">
-    <div class="container topbar-inner">
-      <div class="brand">
-        <div class="logo">PN</div>
-        <strong>Ingénieur Cybersécurité</strong>
+      <!-- Contenu organisé pour tenir à l'écran -->
+      <section class="grid">
+        <div class="terminal">
+<pre><span style="color:#7fd3ff;">$</span> whoami
+<span style="color:#7fd3ff;">></span> prudencio_n
+<span style="color:#7fd3ff;">$</span> status
+<span style="color:#00b37a;">></span> disponible_pour_mission: true
+<span style="color:#7fd3ff;">$</span> stack
+<span style="color:#2aa198;">></span> audit, pentest, red_team, appsec, cloudsec
+<span style="color:#7fd3ff;">$</span> contact <span style="opacity:.85">ing.pno@proton.me</span><span class="caret"> </span></pre>
+        </div>
+
+        <div>
+          <div class="cards">
+            <article class="card">
+              <h3>Audit de sécurité</h3>
+              <p>Cartographie, revues de conf., plan d'action priorisé.</p>
+            </article>
+            <article class="card">
+              <h3>Pentest</h3>
+              <p>Réseau · Web · Mobile — preuves d'exploit & remédiations.</p>
+            </article>
+            <article class="card">
+              <h3>Red Teaming</h3>
+              <p>Adversarial réaliste : phishing, AD, detection & réponse.</p>
+            </article>
+          </div>
+        </div>
+
+        <div>
+          <div class="row" style="margin-bottom:8px">
+            <a class="badge" href="https://www.credly.com/badges/64dd08bd-14c4-4362-a94d-451e7385fe40" target="_blank" rel="noopener">
+              <img src="assets/apisec.png" alt="API SEC"/>
+              <span>API SEC</span>
+            </a>
+            <a class="badge" href="https://www.credential.net/8f4d1d05-8d3d-458c-a5fa-160b633c896f#gs.envbmd" target="_blank" rel="noopener">
+              <img src="https://templates.images.credential.net/1677682410975725023965573912354.png" alt="OSCP"/>
+              <span>OSCP</span>
+            </a>
+            <a class="badge" href="https://certs.ine.com/646458d3-c25c-44be-8127-1b3c81eb08b9#acc.zCE1JBiR" target="_blank" rel="noopener">
+              <img src="https://templates.images.credential.net/16947190403078086581199361007762.png" alt="eCPPT"/>
+              <span>eCPPT</span>
+            </a>
+          </div>
+          <div class="row">
+            <a class="chip" href="https://opscur.medium.com/" target="_blank" rel="noopener">Medium</a>
+            <a class="chip" href="mailto:ing.pno@proton.me">Contact</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pied très court -->
+      <div class="foot">
+        <span>© <span id="year"></span> Prudencio N.</span>
+        <span style="opacity:.9">Thème sobre · hacker</span>
       </div>
-      <nav aria-label="Navigation principale">
-        <a href="#services">Services</a>
-        <a href="#certifications">Certifications</a>
-        <a href="#contact">Contact</a>
-      </nav>
-      <button id="themeToggle" class="toggle" aria-label="Basculer le thème" title="Basculer le thème">🌗</button>
     </div>
   </div>
 
-  <header class="hero">
-    <div class="container hero-wrap">
-      <div>
-        <h1 class="title"><span class="accent">Prudencio&nbsp;N.</span> — Ingénieur Cybersécurité</h1>
-        <p class="subtitle">Audit de sécurité · Pentest · Red Teaming. J'aide les équipes à <strong>détecter</strong>, <strong>prioriser</strong> et <strong>corriger</strong> les risques qui comptent.</p>
-        <div class="cta">
-          <a class="btn primary" href="mailto:ing.pno@proton.me">📧 Me contacter</a>
-          <a class="btn" href="https://www.linkedin.com/in/prudencioo/" target="_blank" rel="noopener">LinkedIn</a>
-          <a class="btn" href="#services">Voir les services</a>
-        </div>
-      </div>
-      <aside class="terminal" aria-label="Carte terminal">
-        <div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
-        <pre><span style="color:#7fd3ff;">$</span> whoami
-<span style="color:#7fd3ff;">></span> prudencio_n
-<span style="color:#7fd3ff;">$</span> status
-<span style="color:#00ffa7;">></span> disponible_pour_mission: true
-<span style="color:#7fd3ff;">$</span> stack
-<span style="color:#b4f8c8;">></span> audit, pentest, red_team, appsec, cloudsec
-<span style="color:#7fd3ff;">$</span> contact <span style="opacity:.8">ing.pno@proton.me</span><span class="caret">&nbsp;</span></pre>
-      </aside>
-    </div>
-  </header>
-
-  <main>
-    <section id="services" class="container">
-      <h2 class="section-title">Services</h2>
-      <div class="cards">
-        <article class="card reveal">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 12l8-5-8-5-8 5 8 5z"/><path d="M20 7v10l-8 5-8-5V7"/></svg>
-          <h3>Audit de sécurité</h3>
-          <p>Cartographie des risques, revues de configuration (on‑prem / cloud), recommandations exploitables et priorisées.</p>
-        </article>
-        <article class="card reveal">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 1v22"/><path d="M5 6h14"/><path d="M7 10h10"/><path d="M9 14h6"/></svg>
-          <h3>Pentest</h3>
-          <p>Boîte noire / grise / blanche sur réseau, web & mobile. Méthodologies reconnues, preuves d'exploitation, plan d'action.</p>
-        </article>
-        <article class="card reveal">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 21l-6-6"/><circle cx="10" cy="10" r="6"/></svg>
-          <h3>Red Teaming</h3>
-          <p>Campagnes adversariales réalistes (phishing, AD, exfiltration) pour évaluer la détection & la réponse de bout en bout.</p>
-        </article>
-      </div>
-    </section>
-
-    <section id="certifications" class="container">
-      <h2 class="section-title">Certifications</h2>
-      <div class="certs">
-        <a class="badge reveal" href="https://www.credly.com/badges/64dd08bd-14c4-4362-a94d-451e7385fe40" target="_blank" rel="noopener">
-          <img src="assets/apisec.png" alt="Certification API SEC"/>
-          <span>API&nbsp;SEC</span>
-        </a>
-        <a class="badge reveal" href="https://www.credential.net/8f4d1d05-8d3d-458c-a5fa-160b633c896f#gs.envbmd" target="_blank" rel="noopener">
-          <img src="https://templates.images.credential.net/1677682410975725023965573912354.png" alt="Certification OSCP"/>
-          <span>OSCP</span>
-        </a>
-        <a class="badge reveal" href="https://certs.ine.com/646458d3-c25c-44be-8127-1b3c81eb08b9#acc.zCE1JBiR" target="_blank" rel="noopener">
-          <img src="https://templates.images.credential.net/16947190403078086581199361007762.png" alt="Certification eCPPT"/>
-          <span>eCPPT</span>
-        </a>
-      </div>
-    </section>
-
-    <section id="contact" class="container">
-      <h2 class="section-title">Contact & Pages</h2>
-      <div class="links">
-        <a class="link reveal" href="mailto:ing.pno@proton.me" aria-label="Envoyer un email">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="M22 6l-10 7L2 6"/></svg>
-          <span>Email</span>
-        </a>
-        <a class="link reveal" href="https://www.linkedin.com/in/prudencioo/" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.88 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM.5 8h4v16h-4V8zm7.5 0h3.7v2.2h.05c.52-1 1.8-2.2 3.75-2.2 4 0 4.75 2.6 4.75 6V24h-4v-7.5c0-1.8 0-4.1-2.5-4.1s-2.9 1.95-2.9 4V24H8V8z"/></svg>
-          <span>LinkedIn</span>
-        </a>
-        <a class="link reveal" href="https://github.com/cyberpoul" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.37.5 0 5.87 0 12.5 0 17.8 3.44 22.3 8.21 23.89c.6.11.82-.26.82-.58v-2.17c-3.34.73-4.03-1.42-4.03-1.42-.55-1.39-1.33-1.76-1.33-1.76-1.09-.74.08-.73.08-.73 1.21.09 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.49.99.11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.12-.3-.53-1.52.12-3.18 0 0 1.01-.32 3.3 1.23.96-.27 1.98-.4 3-.4s2.04.13 3 .4c2.29-1.55 3.3-1.23 3.3-1.23.65 1.66.24 2.87.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.93.43.37.83 1.1.83 2.21v3.28c0 .32.22.7.83.58C20.56 22.3 24 17.8 24 12.5 24 5.87 18.63.5 12 .5z"/></svg>
-          <span>GitHub</span>
-        </a>
-        <a class="link reveal" href="https://opscur.medium.com/" target="_blank" rel="noopener">
-          <svg viewBox="0 0 1044 593" fill="currentColor" aria-hidden="true"><path d="M589 296c0 164-131 296-293 296S2 460 2 296 133 0 295 0s294 132 294 296zM799 296c0 152-68 275-152 275s-152-123-152-275 68-275 152-275 152 123 152 275zM1042 296c0 145-32 263-71 263s-71-118-71-263 32-263 71-263 71 118 71 263z"/></svg>
-          <span>Medium</span>
-        </a>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <div class="container">
-      © <span id="year"></span> Prudencio N. — Tous droits réservés.
-    </div>
-  </footer>
-
   <script>
-    // --------------- Theme Toggle with persistence
+    // ------ Thème avec contraste fort en mode clair
     const html = document.documentElement;
     const toggle = document.getElementById('themeToggle');
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) html.setAttribute('data-theme', savedTheme);
+    const saved = localStorage.getItem('theme');
+    if (saved) html.setAttribute('data-theme', saved);
     toggle.addEventListener('click', () => {
       const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
       html.setAttribute('data-theme', next);
       localStorage.setItem('theme', next);
+      fitToViewport();
     });
 
-    // --------------- Reveal on scroll
-    const io = new IntersectionObserver((entries) => {
-      for (const e of entries) if (e.isIntersecting) e.target.classList.add('visible');
-    }, { threshold: .2 });
-    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-
-    // --------------- Year in footer
+    // ------ Année footer
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // --------------- Matrix rain background (lightweight)
-    (function matrixRain(){
-      const canvas = document.getElementById('fx');
-      const ctx = canvas.getContext('2d');
-      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      let w, h, cols, drops, chars;
+    // ------ Mise à l'échelle pour tenir sans scroll
+    function fitToViewport(){
+      const root = document.getElementById('fit');
+      const inner = document.querySelector('.wrap');
+      const vw = window.innerWidth; const vh = window.innerHeight;
+      // marge de sécurité (top + bottom)
+      const margin = 20;
+      // Mesures réelles du contenu
+      const rect = inner.getBoundingClientRect();
+      // On doit mesurer la hauteur "intrinsèque" :
+      const h = inner.scrollHeight; const w = inner.scrollWidth;
+      const scaleH = Math.min(1, (vh - margin) / h);
+      const scaleW = Math.min(1, (vw - 16) / w);
+      const scale = Math.max(0.7, Math.min(scaleH, scaleW)); // ne pas descendre trop bas
+      root.style.transform = `scale(${scale})`;
+      root.style.height = `${h * scale}px`;
+    }
+    window.addEventListener('resize', fitToViewport);
+    window.addEventListener('load', fitToViewport);
+    setTimeout(fitToViewport, 0);
 
-      function resize(){
-        w = canvas.width = window.innerWidth;
-        h = canvas.height = window.innerHeight;
-        cols = Math.floor(w / 16);
-        drops = new Array(cols).fill(0);
-        chars = '01/*$#';
-      }
-      resize();
-      window.addEventListener('resize', resize);
-
-      let last = 0;
-      function tick(ts){
-        if (prefersReduced) return; // respect reduced motion
-        if (ts - last < 60) { requestAnimationFrame(tick); return; }
-        last = ts;
-        // fade the canvas a bit each frame
-        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg');
-        ctx.globalAlpha = 0.08; ctx.fillRect(0,0,w,h); ctx.globalAlpha = 1;
-        // draw characters
-        const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
-        ctx.fillStyle = accent; ctx.font = '14px ' + getComputedStyle(document.documentElement).getPropertyValue('--mono');
-        for (let i=0; i<drops.length; i++){
-          const text = chars[Math.floor(Math.random()*chars.length)];
-          const x = i * 16;
-          const y = drops[i] * 16;
-          ctx.fillText(text, x, y);
-          if (y > h && Math.random() > 0.975) drops[i] = 0; else drops[i]++;
-        }
-        requestAnimationFrame(tick);
-      }
-      requestAnimationFrame(tick);
-    })();
+    // Respecte reduced‑motion: pas d'animation superflue ici
   </script>
 
-  <!-- Structured data for SEO -->
+  <!-- Données structurées minimales -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -347,8 +223,8 @@
     "name": "Prudencio N.",
     "jobTitle": "Ingénieur Cybersécurité",
     "email": "ing.pno@proton.me",
-    "url": "https://www.linkedin.com/in/prudencioo/",
     "sameAs": [
+      "https://www.linkedin.com/in/prudencioo/",
       "https://github.com/cyberpoul",
       "https://opscur.medium.com/"
     ]
