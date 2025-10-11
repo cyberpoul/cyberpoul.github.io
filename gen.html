@@ -177,7 +177,7 @@
         {key:'', cmd:'smbclient -L \\{{IP}} -N'},
         {key:'', cmd:'nc -vz {{IP}} 22'},
 		{key:'', cmd:'dig +short @8.8.8.8 {{URL}}'},
-		{key:'', cmd:"for i in eth0 tun0; do ip -o -4 addr show dev "$i" 2>/dev/null | awk '{print $2": "$4}' | cut -d/ -f1; done"},
+		{key:'', cmd:'for i in eth0 tun0; do ip -o -4 addr show dev "$i" 2>/dev/null | awk \'{print $2": "$4}\' | cut -d/ -f1; done'},
 
 	 
       ];
