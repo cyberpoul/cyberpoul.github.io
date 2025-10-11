@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Générateur de commandes</title>
+  <style>
+    :root {
+      --bg-dark: #0b1220;
+      --card-dark: #0f1a2a;
+      --text-dark: #e6f0f6;
+      --accent: #10b981;
+      --muted-dark: #9fb6c8;
+
+      --bg-light: #f8fafc;
+      --card-light: #ffffff;
+      --text-light: #111827;
+      --muted-light: #374151;
+    }
+
+    * { box-sizing: border-box; font-family: Inter, Segoe UI, Arial; transition: background 0.3s, color 0.3s; }
+    body {
+      margin: 0;
+      background: var(--bg-dark);
+      color: var(--text-dark);
+      min-height: 100vh;
+      scroll-behavior: smooth;
+    }
+    body.light {
+      background: var(--bg-light);
+      color: var(--text-light);
+    }
+
+    .wrap { max-width: 1100px; margin: 28px auto; padding: 20px; }
+    header { display: flex; justify-content: space-between; align-items: center; }
+    h1 { margin: 0; font-size: 20px; }
+
+    .theme-toggle {
+      background: var(--card-dark);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      width: 60px;
+      height: 30px;
+      position: relative;
+      cursor: pointer;
+    }
+    body.light .theme-toggle { background: var(--card-light); border-color: rgba(0, 0, 0, 0.1); }
+    .toggle-circle {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent);
+      transition: left 0.3s;
+    }
+    body.light .toggle-circle { left: 33px; }
+
+    .card { background: var(--card-dark); padding: 14px; border-radius: 12px; margin-top: 16px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6); }
+    body.light .card { background: var(--card-light); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+
+    .inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    label { display: block; font-size: 13px; color: var(--muted-dark); margin-bottom: 6px; }
+    body.light label { color: var(--muted-light); }
+
+    input[type=text] {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      background: rgba(255, 255, 255, 0.02);
+      color: inherit;
+    }
+    body.light input[type=text] { background: #f1f5f9; border-color: rgba(0, 0, 0, 0.1); }
+
+    .controls { display: flex; gap: 8px; margin-top: 10px; }
+    button { background: var(--accent); border: none; padding: 8px 10px; border-radius: 8px; color: #022; cursor: pointer; font-weight: 700; }
+    button.ghost { background: transparent; border: 1px solid rgba(255, 255, 255, 0.06); color: var(--muted-dark); }
+    body.light button.ghost { color: var(--muted-light); border-color: rgba(0, 0, 0, 0.1); }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { padding: 8px 10px; text-align: left; border-bottom: 1px dashed rgba(255, 255, 255, 0.04); font-size: 13px; }
+    th { color: var(--muted-dark); }
+    body.light th { color: var(--muted-light); border-color: rgba(0, 0, 0, 0.05); }
+    td.cmd { font-family: monospace; background: rgba(255, 255, 255, 0.02); border-radius: 6px; }
+    input.cmd-input { width: 100%; background: transparent; border: 0; color: inherit; font-family: monospace; font-size: 13px; padding: 6px; white-space: nowrap; overflow-x: auto; }
+
+    .row-actions { display: flex; gap: 8px; align-items: center; }
+
+    footer { margin-top: 24px; text-align: center; font-size: 14px; color: var(--accent); }
+
+    #scrollTopBtn, #scrollBottomBtn {
+      position: fixed;
+      right: 25px;
+      background: var(--accent);
+      color: #022;
+      border: none;
+      border-radius: 50%;
+      width: 42px;
+      height: 42px;
+      cursor: pointer;
+      display: none;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
+    }
+    #scrollTopBtn { bottom: 25px; }
+    #scrollBottomBtn { bottom: 80px; }
+    #scrollTopBtn.show, #scrollBottomBtn.show {
+      display: block;
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Générateur de commandes</h1>
+      <div id="themeToggle" class="theme-toggle"><div class="toggle-circle"></div></div>
+    </header>
+
+    <div class="card">
+      <div class="inputs">
+        <div>
+          <label for="ip">IP</label>
+          <input id="ip" type="text" placeholder="ex: 10.10.10.10" />
+        </div>
+        <div>
+          <label for="domain">URL</label>
+          <input id="domain" type="text" placeholder="ex: example.com" />
+        </div>
+      </div>
+
+      <div class="controls">
+        <button id="populate">Populer</button>
+        <button class="ghost" id="reset">Effacer</button>
+      </div>
+
+      <div id="tableWrap" style="margin-top:12px">
+        <table id="cmdTable">
+          <thead><tr><th style="width:88%"></th><th style="width:12%"></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <footer><a href="https://github.com/cyberpoul" target="_blank" style="color:#10b981;text-decoration:none">@opscur</a></footer>
+    </div>
+  </div>
+
+  <button id="scrollTopBtn">↑</button>
+  <button id="scrollBottomBtn">↓</button>
+
+  <script>
+    (function(){
+      const $ = id => document.getElementById(id);
+      const ip = $('ip'), domain = $('domain');
+      const populateBtn = $('populate'), resetBtn = $('reset');
+      const tbody = document.querySelector('#cmdTable tbody');
+      const themeToggle = $('themeToggle');
+      const scrollTopBtn = $('scrollTopBtn');
+      const scrollBottomBtn = $('scrollBottomBtn');
+
+      const templates = [
+        {key:'nmap-aggr', cmd:'nmap -T4 -A -v {{IP}}'},
+        {key:'nmap-save', cmd:'nmap -sC -sV -O -n -oN nmapscan.txt {{IP}}'},
+        {key:'nmap-vuln', cmd:'nmap -Pn --script vuln {{IP}}'},
+        {key:'masscan', cmd:'masscan {{IP}} --rate=1000'},
+        {key:'gobuster', cmd:'gobuster dir -w wordlist.txt -u {{URL}}/ -t 40'},
+        {key:'ffuf-dir', cmd:'ffuf -w wordlist.txt:FUZZ -u {{URL}}/FUZZ'},
+        {key:'ffuf-sub', cmd:'ffuf -w wordlist.txt:FUZZ -u https://FUZZ.{{DOMAIN}}/'},
+        {key:'nikto', cmd:'nikto -host {{URL}}'},
+        {key:'curl', cmd:'curl -I {{URL}}'},
+        {key:'enum4linux', cmd:'enum4linux -a {{IP}}'},
+        {key:'snmp-check', cmd:'snmp-check {{IP}}'},
+        {key:'smbclient', cmd:'smbclient -L \\{{IP}} -N'},
+        {key:'nc-ssh', cmd:'nc -vz {{IP}} 22'},
+        {key:'ffuf-vhost', cmd:'ffuf -w vhosts.txt:FUZZ -u {{URL}} -H "Host: FUZZ.{{DOMAIN}}"'}
+      ];
+
+      const STATE_KEY = 'pentest.recon.v12';
+      const originals = Object.fromEntries(templates.map(t=>[t.key,t.cmd]));
+
+      function saveState(){ localStorage.setItem(STATE_KEY, JSON.stringify({ip:ip.value,domain:domain.value})); }
+      function loadState(){ try{ const st = JSON.parse(localStorage.getItem(STATE_KEY)||'{}'); if(st.ip) ip.value = st.ip; if(st.domain) domain.value = st.domain; }catch(e){} }
+
+      function expandPlaceholders(str){
+        let url = domain.value || '';
+        if(url.endsWith('/')) url = url.slice(0,-1);
+        const domainOnly = url.replace(/https?:\/\//,'');
+        const vals = {IP: ip.value || '', URL: url || '', DOMAIN: domainOnly || ''};
+        return str.replace(/{{IP}}/g, vals.IP).replace(/{{URL}}/g, vals.URL).replace(/{{DOMAIN}}/g, vals.DOMAIN).replace(/:80/g,'');
+      }
+      function showWithVars(str){ return str.replace(/{{IP}}/g, '$ip').replace(/{{URL}}/g, '$target').replace(/{{DOMAIN}}/g, '$target').replace(/:80/g,''); }
+
+      let renderMode = 'vars';
+      function render(){ tbody.innerHTML = ''; templates.forEach(t=>{ const tr = document.createElement('tr'); const tdCmd = document.createElement('td'); tdCmd.className='cmd'; const inputEl = document.createElement('input'); inputEl.type='text'; inputEl.className='cmd-input'; inputEl.value = renderMode === 'vars' ? showWithVars(t.cmd) : expandPlaceholders(t.cmd); inputEl.addEventListener('input', ()=>{ t.cmd = inputEl.value; saveState(); }); tdCmd.appendChild(inputEl); const tdAct = document.createElement('td'); tdAct.className='row-actions'; const btnCopy = document.createElement('button'); btnCopy.textContent='Copier'; btnCopy.onclick = ()=>{ navigator.clipboard.writeText(inputEl.value); btnCopy.textContent='Copié!'; setTimeout(()=>btnCopy.textContent='Copier',1100); }; tdAct.appendChild(btnCopy); tr.appendChild(tdCmd); tr.appendChild(tdAct); tbody.appendChild(tr); }); }
+
+      function doPopulate(){ renderMode = 'expanded'; render(); saveState(); }
+      function doReset(){ ip.value=''; domain.value=''; localStorage.removeItem(STATE_KEY); renderMode='vars'; render(); }
+
+      populateBtn.addEventListener('click', doPopulate);
+      resetBtn.addEventListener('click', doReset);
+      [ip, domain].forEach(el=>el.addEventListener('keydown', e=>{if(e.key==='Enter'){e.preventDefault();doPopulate();}}));
+      [ip,domain].forEach(el=>el.addEventListener('input', saveState));
+
+      // Theme toggle
+      const body=document.body;
+      if(localStorage.getItem('theme')==='light') body.classList.add('light');
+      themeToggle.addEventListener('click',()=>{ body.classList.toggle('light'); localStorage.setItem('theme',body.classList.contains('light')?'light':'dark'); });
+
+      // Scroll buttons
+      window.addEventListener('scroll',()=>{
+        if(window.scrollY>50){ scrollTopBtn.classList.add('show'); scrollBottomBtn.classList.remove('show'); }
+        else { scrollTopBtn.classList.remove('show'); scrollBottomBtn.classList.add('show'); }
+      });
+      scrollTopBtn.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+      scrollBottomBtn.addEventListener('click',()=>window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'}));
+
+      loadState(); render();
+    })();
+  </script>
+</body>
+</html>
