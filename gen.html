@@ -129,7 +129,7 @@
         </div>
         <div>
           <label for="domain">URL</label>
-          <input id="domain" type="text" placeholder="ex: example.com" />
+          <input id="domain" type="text" placeholder="ex: https://example.com" />
         </div>
       </div>
 
@@ -163,20 +163,19 @@
       const scrollBottomBtn = $('scrollBottomBtn');
 
       const templates = [
-        {key:'nmap-aggr', cmd:'nmap -T4 -A -v {{IP}}'},
-        {key:'nmap-save', cmd:'nmap -sC -sV -O -n -oN nmapscan.txt {{IP}}'},
-        {key:'nmap-vuln', cmd:'nmap -Pn --script vuln {{IP}}'},
-        {key:'masscan', cmd:'masscan {{IP}} --rate=1000'},
-        {key:'gobuster', cmd:'gobuster dir -w wordlist.txt -u {{URL}}/ -t 40'},
-        {key:'ffuf-dir', cmd:'ffuf -w wordlist.txt:FUZZ -u {{URL}}/FUZZ'},
-        {key:'ffuf-sub', cmd:'ffuf -w wordlist.txt:FUZZ -u https://FUZZ.{{DOMAIN}}/'},
-        {key:'nikto', cmd:'nikto -host {{URL}}'},
-        {key:'curl', cmd:'curl -I {{URL}}'},
-        {key:'enum4linux', cmd:'enum4linux -a {{IP}}'},
-        {key:'snmp-check', cmd:'snmp-check {{IP}}'},
-        {key:'smbclient', cmd:'smbclient -L \\{{IP}} -N'},
-        {key:'nc-ssh', cmd:'nc -vz {{IP}} 22'},
-        {key:'ffuf-vhost', cmd:'ffuf -w vhosts.txt:FUZZ -u {{URL}} -H "Host: FUZZ.{{DOMAIN}}"'}
+        {key:'', cmd:'nmap -T4 -A -v -p- --open {{IP}} -oN nmap.txt'},
+        {key:'', cmd:'sudo nmap -sU --top-ports=100 -T4 --open -v --min-rate=1000 {{IP}}'},
+        {key:'', cmd:'dirsearch -u {{URL}} -x 403,404,400'},
+		{key:'', cmd:'testssl {{URL}}'},
+        {key:'', cmd:'nikto -h {{URL}} -c All -O nikto.html'},
+        {key:'', cmd:'gobuster dir -u {{URL}} -r -w /usr/share/dirb/wordlists/common.txt -x php,html,txt,zip,bak,backup,config,db -k'},
+        {key:'', cmd:'ffuf -u {{URL}}/FUZZ-w /usr/share/seclists/Discovery/Web-Content/big.txt'},
+        {key:'', cmd:'curl -I {{URL}}'},
+        {key:'', cmd:'enum4linux -a {{IP}}'},
+        {key:'', cmd:'snmp-check {{IP}}'},
+        {key:'', cmd:'smbclient -L \\{{IP}} -N'},
+        {key:'', cmd:'nc -vz {{IP}} 22'},
+        
       ];
 
       const STATE_KEY = 'pentest.recon.v12';
