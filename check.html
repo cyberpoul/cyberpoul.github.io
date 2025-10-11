@@ -1,0 +1,755 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pentest checklist</title>
+  <style>
+    :root{
+      --bg:#0e1020; --panel:#161a35; --muted:#1b2144; --text:#e9ecff; --accent:#8ca6ff; --accent2:#46deb6; --ok:#78e08f; --danger:#ff6b6b;
+      --shadow:0 8px 26px rgba(0,0,0,.35), 0 2px 8px rgba(0,0,0,.18);
+    }
+    [data-theme="light"]{ --bg:#f5f7ff; --panel:#ffffff; --muted:#e8ecfb; --text:#0f1228; --accent:#3b5bdb; --accent2:#12b886; --ok:#2f9e44; --danger:#e03131; --shadow:0 8px 20px rgba(15,18,40,.12), 0 2px 6px rgba(15,18,40,.08); }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+    a{color:var(--accent)}
+    header{position:sticky;top:0;z-index:10;background:var(--panel);box-shadow:var(--shadow);display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px 14px}
+    h1{font-size:18px;margin:0}
+    .toolbar{display:flex;gap:8px;flex-wrap:wrap}
+    input[type="search"], select{background:var(--muted);border:1px solid rgba(255,255,255,.1);color:var(--text);padding:10px;border-radius:10px;min-width:220px}
+    button{appearance:none;border:0;border-radius:10px;padding:10px 12px;background:var(--muted);color:var(--text);cursor:pointer}
+    button.primary{background:linear-gradient(135deg,var(--accent),#7dc0ff);color:#fff}
+    button.danger{background:linear-gradient(135deg,#ff6b6b,#ffb3b3);color:#222}
+    .layout{display:grid;grid-template-columns:300px 1fr;gap:12px;padding:12px}
+    aside{background:var(--panel);border-radius:16px;box-shadow:var(--shadow);padding:12px;height:calc(100vh - 86px);position:sticky;top:74px;overflow:auto}
+    main{background:var(--panel);border-radius:16px;box-shadow:var(--shadow);padding:12px;min-height:60vh}
+    .stats{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+    .pill{padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.08)}
+
+    .group{background:var(--muted);border-radius:14px;padding:10px;margin-bottom:10px}
+    .group h3{margin:0 0 4px 0;font-size:15px;display:flex;align-items:center;justify-content:space-between}
+    .items{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:8px}
+    .item{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:8px;display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap}
+    .item input{margin-top:3px}
+    .item .cmds{grid-column:1/-1;display:none;margin:6px 0 0 28px;background:rgba(0,0,0,.18);padding:8px;border-radius:10px;border:1px solid rgba(255,255,255,.12)}
+    .item pre{white-space:pre-wrap;margin:0;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace}
+    .item .btn-cmd{margin-left:auto}
+
+    .sidebar-block{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px;margin-bottom:10px}
+    .meter{height:6px;background:rgba(255,255,255,.1);border-radius:999px;overflow:hidden;margin-top:8px}
+    .meter>span{display:block;height:6px;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0}
+
+    .footer{text-align:center;margin-top:12px}
+
+    /* Boutons de scroll (discrets + contextuels) */
+    #scrollTopBtn,#scrollBottomBtn{position:fixed;right:14px;z-index:50;background:rgba(20,24,48,.65);backdrop-filter:blur(6px);color:#fff;border:1px solid rgba(255,255,255,.15);border-radius:10px;min-width:38px;height:36px;display:none;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow);font-size:16px;opacity:.55;transition:opacity .2s, transform .2s}
+    #scrollTopBtn:hover,#scrollBottomBtn:hover{opacity:.95;transform:translateY(-1px)}
+    #scrollTopBtn{bottom:70px}
+    #scrollBottomBtn{bottom:22px}
+  </style>
+</head>
+<body data-theme="dark">
+  <header>
+    <div style="display:flex;gap:10px;align-items:center">
+      <h1>Pentest checklist</h1>
+    </div>
+    <div class="toolbar">
+      <input id="q" type="search" placeholder="Rechercher une tâche (⌘/Ctrl+K)"/>
+      <select id="phase"><option value="">Toutes les sections</option></select>
+      <button id="btn_reset" class="danger">Tout réinitialiser</button>
+      <button id="btn_theme" class="primary">Thème</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside>
+      <div class="sidebar-block">
+        <strong>Progression</strong>
+        <div class="meter"><span id="meter_all" style="width:0%"></span></div>
+        <div style="margin-top:6px" class="pill"><span id="count_checked">0</span>/<span id="count_total">0</span> • <span id="pct_all">0%</span></div>
+      </div>
+      <div id="toc" class="sidebar-block">
+        <strong>Navigation</strong>
+        <div id="toc_links" style="display:flex;flex-direction:column;gap:6px;margin-top:6px"></div>
+      </div>
+    </aside>
+
+    <main>
+      <div class="stats"><div class="pill">Section : <span id="crumb">Toutes</span></div></div>
+      <div id="root"></div>
+      <div class="footer"><a href="https://github.com/cyberpoul" target="_blank">©opscur</a></div>
+    </main>
+  </div>
+
+  <button id="scrollTopBtn" title="Haut">⬆</button>
+  <button id="scrollBottomBtn" title="Bas">⬇</button>
+
+<script>
+/***** Données *****/
+const DATA = {
+  "Web": {
+    "Recon — Large scope (company / multi-domain)": [
+      "Get ASN for IP ranges (amass, asnlookup, metabigor, bgp)",
+      "Review latest acquisitions",
+      "Get relationships by registrants (viewdns)",
+      "Go to medium scope for each domain"
+    ],
+    "Recon — Medium scope (single domain)": [
+      "Enumerate subdomains (amass or subfinder with all available API keys)",
+      "Subdomain bruteforce (puredns with wordlist)",
+      "Permute subdomains (gotator or ripgen with wordlist)",
+      "Identify alive subdomains (httpx)",
+      "Subdomain takeovers (nuclei-takeovers)",
+      "Check for cloud assets (cloudenum)",
+      "Shodan search",
+      "Transfer zone",
+      "Subdomains recursive search",
+      "Take screenshots (gowitness, webscreenshot, aquatone)"
+    ],
+    "Recon — Small scope (single website)": [
+      "Identify web server, technologies and database (httpx)",
+      "Try to locate /robots.txt , /crossdomain.xml /clientaccesspolicy.xml /sitemap.xml and /.well-known/",
+      "Review comments on source code (Burp Engagement Tools)",
+      "Directory enumeration",
+      "Web fuzzing (ffuf and wordlist)",
+      "Find leaked ids, emails (pwndb)",
+      "Identify WAF (whatwaf, wafw00f)",
+      "Google dorking",
+      "GitHub dorking/Github tools (githound, gitdorks_go)",
+      "Get urls (gau , waybackurls, gospider)",
+      "Check potential vulnerable urls (gf-patterns)",
+      "Automatic XSS finder (dalfox)",
+      "Locate admin and login panel",
+      "Broken link hijacking (blc)",
+      "Get all JS files (subjs, xnLinkFinder)",
+      "JS hardcoded APIs and secrets (nuclei-tokens)",
+      "JS analysis (subjs, JSA, xnLinkFinder, getjswords)",
+      "Run automated scanner (nuclei)",
+      "Test CORS (CORScanner, corsy)"
+    ],
+    "Network": [
+      "Check ICMP packets allowed",
+      "Check DMARC/SPF policies (spoofcheck)",
+      "Open ports with Shodan",
+      "Port scan to all ports",
+      "Check UDP ports (udp-proto-scanner or nmap)",
+      "Test SSL (testssl)",
+      "If got creds, try password spraying for all the services discovered"
+    ],
+    "Preparation": [
+      "Study site structure",
+      "Make a list with all possible test cases",
+      "Understand the business area and what their customer needs",
+      "Get a list of every asset (all_subdomains.txt, live_subdomains.txt, waybackurls.txt, hidden_directories.txt, nmap_results.txt, GitHub_search.txt, altdns_subdomain.txt, vulnerable_links.txt, js_files.txt)"
+    ],
+    "User management — Registration": [
+      "Duplicate registration (try with uppercase, +1@..., dots in name, etc)",
+      "Overwrite existing user (existing user takeover)",
+      "Username uniqueness",
+      "Weak password policy (user=password, password=123456,111111,abcabc,qwerty12)",
+      "Insufficient email verification process (also my%00email@mail.com for account tko)",
+      "Weak registration implementation or allows disposable email addresses",
+      "Fuzz after user creation to check if any folder have been overwritten or created with your profile name",
+      "Add only spaces in password",
+      "Long password (>200) leads to DoS",
+      "Corrupt authentication and session defects: Sign up, don't verify, request change password, change, check if account is active.",
+      "Try to re-register repeating same request with same password and different password too",
+      "If JSON request, add comma {“email”:“victim@mail.com”, ”hacker@mail.com”, “token”: ”xxxxxxxxxx”}",
+      "Lack of confirmation -> try to register with company email.",
+      "Check OAuth with social media registration",
+      "Check state parameter on social media registration",
+      "Try to capture integration url leading integration takeover",
+      "Check redirections in register page after login",
+      "Rate limit on account creation",
+      "XSS on name or email"
+    ],
+    "User management — Authentication": [
+      "Username enumeration",
+      "Resilience to password guessing",
+      "Account recovery function",
+      "\"Remember me\" function",
+      "Impersonation function",
+      "Unsafe distribution of credentials",
+      "Fail-open conditions",
+      "Multi-stage mechanisms",
+      "SQL Injections",
+      "Auto-complete testing",
+      "Lack of password confirmation on change email, password or 2FA (try change response)",
+      "Weak login function over HTTP and HTTPS if both are available",
+      "User account lockout mechanism on brute force attack",
+      "Check for password wordlist (cewl and burp-goldenNuggets)",
+      "Test 0auth login functionality for Open Redirection",
+      "Test response tampering in SAML authentication",
+      "In OTP check guessable codes and race conditions",
+      "OTP, check response manipulation for bypass",
+      "OTP, try bruteforce",
+      "If JWT, check common flaws",
+      "Browser cache weakness (eg Pragma, Expires, Max-age)",
+      "After register, logout, clean cache, go to home page and paste your profile url in browser, check for \"login?next=accounts/profile\" for open redirect or XSS with \"/login?next=javascript:alert(1);//\"",
+      "Try login with common credentials"
+    ],
+    "User management — Session": [
+      "Session handling",
+      "Test tokens for meaning",
+      "Test tokens for predictability",
+      "Insecure transmission of tokens",
+      "Disclosure of tokens in logs",
+      "Mapping of tokens to sessions",
+      "Session termination",
+      "Session fixation",
+      "Cross-site request forgery",
+      "Cookie scope",
+      "Decode Cookie (Base64, hex, URL etc.)",
+      "Cookie expiration time",
+      "Check HTTPOnly and Secure flags",
+      "Use same cookie from a different effective IP address or system",
+      "Access controls",
+      "Effectiveness of controls using multiple accounts",
+      "Insecure access control methods (request parameters, Referer header, etc)",
+      "Check for concurrent login through different machine/IP",
+      "Bypass AntiCSRF tokens",
+      "Weak generated security questions",
+      "Path traversal on cookies",
+      "Reuse cookie after session closed",
+      "Logout and click browser \"go back\" function (Alt + Left arrow)",
+      "2 instances open, 1st change or reset password, refresh 2nd instance",
+      "With privileged user perform privileged actions, try to repeat with unprivileged user cookie."
+    ],
+    "User management — Profile/Account details": [
+      "Find parameter with user id and try to tamper in order to get the details of other users",
+      "Create a list of features that are pertaining to a user account only and try CSRF",
+      "Change email id and update with any existing email id. Check if its getting validated on server or not.",
+      "Check any new email confirmation link and what if user doesn't confirm.",
+      "File upload: eicar, No Size Limit, File extension, Filter Bypass, burp extension, RCE",
+      "CSV import/export: Command Injection, XSS, macro injection",
+      "Check profile picture URL and find email id/user info or EXIF Geolocation Data",
+      "Imagetragick in picture profile upload",
+      "Metadata of all downloadable files (Geolocation, usernames)",
+      "Account deletion option and try to reactivate with \"Forgot password\" feature",
+      "Try bruteforce enumeration when change any user unique parameter.",
+      "Check application request re-authentication for sensitive operations",
+      "Try parameter pollution to add two values of same field",
+      "Check different roles policy"
+    ],
+    "User management — Forgot/reset password": [
+      "Invalidate session on Logout and Password reset",
+      "Uniqueness of forget password reset link/code",
+      "Reset links expiration time",
+      "Find user id or other sensitive fields in reset link and tamper them",
+      "Request 2 reset passwords links and use the older",
+      "Check if many requests have sequential tokens",
+      "Use username@burp_collab.net and analyze the callback",
+      "Host header injection for token leakage",
+      "Add X-Forwarded-Host: evil.com to receive the reset link with evil.com",
+      "Email crafting like victim@gmail.com@target.com",
+      "IDOR in reset link",
+      "Capture reset token and use with other email/userID",
+      "No TLD in email parameter",
+      "User carbon copy email=victim@mail.com%0a%0dcc:hacker@mail.com",
+      "Long password (>200) leads to DoS",
+      "No rate limit, capture request and send over 1000 times",
+      "Check encryption in reset password token",
+      "Token leak in referer header",
+      "Append second email param and value",
+      "Understand how token is generated (timestamp, username, birthdate,...)",
+      "Response manipulation"
+    ],
+    "Input handling": [
+      "Fuzz all request parameters (if got user, add headers to fuzzer)",
+      "Identify all reflected data",
+      "Reflected XSS",
+      "HTTP header injection in GET & POST (X Forwarded Host)",
+      "RCE via Referer Header",
+      "SQL injection via User-Agent Header",
+      "Arbitrary redirection",
+      "Stored attacks",
+      "OS command injection",
+      "Path traversal, LFI and RFI",
+      "Script injection",
+      "File inclusion",
+      "SMTP injection",
+      "Native software flaws (buffer overflow, integer bugs, format strings)",
+      "SOAP injection",
+      "LDAP injection",
+      "SSI Injection",
+      "XPath injection",
+      "XXE in any request, change content-type to text/xml",
+      "Stored XSS",
+      "SQL injection with ' and '--+-",
+      "NoSQL injection",
+      "HTTP Request Smuggling",
+      "Open redirect",
+      "Code Injection (<h1>six2dez</h1> on stored param)",
+      "SSRF in previously discovered open ports",
+      "xmlrpc.php DOS and user enumeration",
+      "HTTP dangerous methods OPTIONS PUT DELETE",
+      "Try to discover hidden parameters (arjun or parameth)",
+      "Insecure deserialization"
+    ],
+    "Error handling": [
+      "Access custom pages like /whatever_fake.php (.aspx,.html,.etc)",
+      "Add multiple parameters in GET and POST request using different values",
+      'Add "[]", "]]", and "[[" in cookie values and parameter values to create errors',
+      "Generate error by giving input as \"/~randomthing/%s\" at the end of URL",
+      "Use Burp Intruder \"Fuzzing Full\" List in input to generate error codes",
+      "Try different HTTP Verbs like PATCH, DEBUG or wrong like FAKE"
+    ],
+    "Application Logic": [
+      "Identify the logic attack surface",
+      "Test transmission of data via the client",
+      "Test for reliance on client-side input validation",
+      "Thick-client components (Java, ActiveX, Flash)",
+      "Multi-stage processes for logic flaws",
+      "Handling of incomplete input",
+      "Trust boundaries",
+      "Transaction logic",
+      "Implemented CAPTCHA in email forms to avoid flooding",
+      "Tamper product id, price or quantity value in any action (add, modify, delete, place, pay...)",
+      "Tamper gift or discount codes",
+      "Reuse gift codes",
+      "Try parameter pollution to use gift code two times in same request",
+      "Try stored XSS in non-limited fields like address",
+      "Check in payment form if CVV and card number is in clear text or masked",
+      "Check if is processed by the app itself or sent to 3rd parts",
+      "IDOR from other users details ticket/cart/shipment",
+      "Check for test credit card number allowed like 4111 1111 1111 1111 (sample1 sample2)",
+      "Check PRINT or PDF creation for IDOR",
+      "Check unsubscribe button with user enumeration",
+      "Parameter pollution on social media sharing links",
+      "Change POST sensitive requests to GET"
+    ],
+    "Other checks — Infrastructure": [
+      "Segregation in shared infrastructures",
+      "Segregation between ASP-hosted applications",
+      "Web server vulnerabilities",
+      "Dangerous HTTP methods",
+      "Proxy functionality",
+      "Virtual hosting misconfiguration (VHostScan)",
+      "Check for internal numeric IP's in request",
+      "Check for external numeric IP's and resolve it",
+      "Test cloud storage",
+      "Check the existence of alternative channels (www.web.com vs m.web.com)"
+    ],
+    "Other checks — CAPTCHA": [
+      "Send old captcha value.",
+      "Send old captcha value with old session ID.",
+      "Request captcha absolute path like www.url.com/captcha/1.png",
+      "Remove captcha with any adblocker and request again",
+      "Bypass with OCR tool (easy one)",
+      "Change from POST to GET",
+      "Remove captcha parameter",
+      "Convert JSON request to normal",
+      "Try header injections"
+    ],
+    "Other checks — Security Headers": [
+      "X-XSS-Protection",
+      "Strict-Transport-Security",
+      "Content-Security-Policy",
+      "Public-Key-Pins",
+      "X-Frame-Options",
+      "X-Content-Type-Options",
+      "Referer-Policy",
+      "Cache-Control",
+      "Expires"
+    ]
+  },
+  "Active Directory": {
+    "Reconnaissance & Scanning": [
+      "Network traffic (Wireshark)",
+      "Network range scan",
+      "Fingerprinting (whois, ASN, DNS, DNS lookup, google dorks)",
+      "Live host scan",
+      "Port scan (service, version, OS, UDP, TCP)",
+      "SNMP enumeration (snmpcheck, snmpwalk)",
+      "NetBIOS enumeration (nbtscan, nbtlookup)",
+      "FTP enumeration (default/guessable creds, anonymous login)",
+      "SMTP enumeration (telnet connection, user enumeration, SMTP relay)",
+      "DNS enumeration (reverse/bruteforce/records/zone transfer)",
+      "NFS enumeration (showmount, root‑squashing)",
+      "LDAP/AD enumeration (null creds)",
+      "LLMNR/NBNS poisoning readiness",
+      "IPv6 / mitm6 readiness (RA, DHCPv6)",
+      "SMB signing & NTLMv1 usage",
+      "Kerberos user enumeration (kerbrute)",
+      "LDAP anonymous bind allowed"
+    ],
+    "AD Enumeration": [
+      "User enumeration",
+      "Machine / service accounts enumeration",
+      "Domain admin account enumeration",
+      "Map domain trusts",
+      "Domain groups enumeration",
+      "Access domain shares",
+      "Domain OU enumeration",
+      "Applied GPO enumeration",
+      "Domain password policy enumeration",
+      "Local admins enumeration",
+      "ACLs enumeration",
+      "Domain policy enumeration",
+      "Domain controller enumeration",
+      "Logged‑on users/admins",
+      "Powershell history",
+      "Deleted objects enumeration",
+      "LDAP dump (ldapdomaindump)",
+      "BloodHound collection",
+      "Find AS‑REP roastable users",
+      "Find Kerberoastable SPNs",
+      "Unconstrained/Constrained delegation inventory",
+      "RBCD candidates (KeyCredentialLink/msDS-AllowedToAct...)"
+    ],
+    "Lateral Movement": [
+      "Password spray",
+      "Internal spearphishing",
+      "Kerberoastable users (PowerShell, PowerView, BloodHound, Mimikatz, Impacket)",
+      "AS‑REP roastable users",
+      "Constrained/Unconstrained delegation attacks",
+      "Pass‑the‑Hash / Over‑Pass‑the‑Hash / Pass‑the‑Ticket",
+      "OS credential/hash dumping (mimikatz, reg.exe)",
+      "PowerShell remoting",
+      "WMI remote command execution (Impacket, PowerShell)",
+      ".url/.scf file attacks (writable shares)",
+      "Resource‑based constrained delegation",
+      "Abusing shadow copies",
+      "Abusing DNSAdmins",
+      "Abusing Backup Operators (SeBackupPrivilege)",
+      "Token impersonation (SeImpersonate, PrintSpooler/PrintSpoofer)",
+      "AD CS abuse (BloodHound, Certipy, Certify)",
+      "PsExec / SMBExec / ATExec (Impacket)"
+    ],
+    "Domain Escalation": [
+      "Kerberoasting / AS‑REP roasting (mimikatz, crackmapexec, metasploit, impacket)",
+      "GPO/ACL abuses (GenericAll, GenericWrite)",
+      "AddMember/WriteDACL/WriteOwner abuse",
+      "Shadow Credentials (KeyCredentialLink)"
+    ],
+    "Domain Persistence": [
+      "Golden ticket",
+      "Silver ticket",
+      "DCSync / DCShadow attack",
+      "Skeleton Key attack",
+      "DSRM abuse",
+      "AdminSDHolder backdoor",
+      "GPO Scheduled Task backdoor"
+    ]
+  }
+};
+
+/***** Exemples de commandes — UNIQUEMENT pour items pertinents (Kali) *****/
+const COMMANDS = {
+  "Web": {
+    "Recon — Large scope (company / multi-domain)": {
+      "Get ASN for IP ranges (amass, asnlookup, metabigor, bgp)": [
+        "metabigor ip -o AS15169",
+        "whois -h whois.radb.net ' -- '-i origin AS15169 | grep -Eo '([0-9.]+){4}/[0-9]+' | sort -u"
+      ],
+      "Get relationships by registrants (viewdns)": [
+        "amass intel -whois -d example.com",
+        "amass intel -org 'Example Corp'"
+      ]
+    },
+    "Recon — Medium scope (single domain)": {
+      "Enumerate subdomains (amass or subfinder with all available API keys)": [
+        "amass enum -passive -d example.com -o amass.txt",
+        "subfinder -d example.com -all -silent -o subfinder.txt",
+        "sort -u amass.txt subfinder.txt > subs.txt"
+      ],
+      "Subdomain bruteforce (puredns with wordlist)": [
+        "puredns bruteforce wordlists/subs.txt example.com -r resolvers.txt -w subs_brute.txt"
+      ],
+      "Permute subdomains (gotator or ripgen with wordlist)": [
+        "gotator -sub subs.txt -perm permutations.txt -numbers 10 -adv -md -silent | tee perms.txt"
+      ],
+      "Identify alive subdomains (httpx)": [
+        "httpx -l subs.txt -status-code -title -tech-detect -silent | tee live.txt"
+      ],
+      "Subdomain takeovers (nuclei-takeovers)": [
+        "nuclei -l live.txt -t http/takeovers -severity high,critical"
+      ],
+      "Check for cloud assets (cloudenum)": [
+        "cloudenum -d example.com -p aws,azure,gcp"
+      ],
+      "Shodan search": [
+        "shodan domain example.com",
+        "shodan search 'ssl.cert.subject.CN:example.com'"
+      ],
+      "Transfer zone": [
+        "dig @ns1.example.com example.com AXFR"
+      ],
+      "Subdomains recursive search": [
+        "amass enum -brute -active -d example.com -o amass_active.txt"
+      ],
+      "Take screenshots (gowitness, webscreenshot, aquatone)": [
+        "gowitness file -f live.txt --threads 8 --disable-db --timeout 10 --log-level warn"
+      ]
+    },
+    "Recon — Small scope (single website)": {
+      "Identify web server, technologies and database (httpx)": ["httpx -u https://target.tld -title -tech-detect -status-code"],
+      "Directory enumeration": ["ffuf -u https://target.tld/FUZZ -w /usr/share/wordlists/dirb/common.txt -ic"],
+      "Web fuzzing (ffuf and wordlist)": ["ffuf -u https://target.tld/search?q=FUZZ -w params.txt -fs 0"],
+      "Find leaked ids, emails (pwndb)": ["pwndb --target example.com || echo \"utiliser d'autres sources OSINT\""],
+      "Identify WAF (whatwaf, wafw00f)": ["wafw00f https://target.tld"],
+      "Google dorking": ["echo 'site:target.tld ext:sql | ext:bak | ext:log'"],
+      "GitHub dorking/Github tools (githound, gitdorks_go)": ["githound -d target.tld -q secret","gitdorks-go -d target.tld"],
+      "Get urls (gau , waybackurls, gospider)": ["gau target.tld | tee urls.txt","waybackurls target.tld | tee -a urls.txt"],
+      "Check potential vulnerable urls (gf-patterns)": ["cat urls.txt | gf sqli | tee sqli_urls.txt"],
+      "Automatic XSS finder (dalfox)": ["dalfox file urls.txt --silence --mass"],
+      "Locate admin and login panel": ["ffuf -u https://target.tld/FUZZ -w wordlists/admin-panels.txt -fs 0"],
+      "Broken link hijacking (blc)": ["blc https://target.tld -ro"],
+      "Get all JS files (subjs, xnLinkFinder)": ["subjs -i live.txt | tee js.txt"],
+      "JS hardcoded APIs and secrets (nuclei-tokens)": ["nuclei -l js.txt -t tokens -severity medium,high"],
+      "JS analysis (subjs, JSA, xnLinkFinder, getjswords)": ["xnLinkFinder -i https://target.tld -o out --js"],
+      "Run automated scanner (nuclei)": ["nuclei -l live.txt -as -severity medium,high,critical"],
+      "Test CORS (CORScanner, corsy)": ["python3 CORScanner/cors_scan.py -i live.txt"]
+    },
+    "Network": {
+      "Check ICMP packets allowed": ["ping -c 3 target || hping3 -1 target"],
+      "Check DMARC/SPF policies (spoofcheck)": ["spoofcheck target.tld"],
+      "Open ports with Shodan": ["shodan host 1.2.3.4"],
+      "Port scan to all ports": ["nmap -p- -sS -Pn -T4 target"],
+      "Check UDP ports (udp-proto-scanner or nmap)": ["nmap -sU -T4 --top-ports 100 target"],
+      "Test SSL (testssl)": ["testssl --fast --color 0 https://target.tld"],
+      "If got creds, try password spraying for all the services discovered": ["hydra -L users.txt -p 'Winter2025!' rdp://target"]
+    }
+  },
+  "Active Directory": {
+    "Reconnaissance & Scanning": {
+      "LLMNR/NBNS poisoning readiness": ["responder -I eth0 -A"],
+      "IPv6 / mitm6 readiness (RA, DHCPv6)": ["mitm6 -d example.local"],
+      "SMB signing & NTLMv1 usage": ["crackmapexec smb 10.0.0.0/24 --gen-relay-list targets.txt --ntlm"],
+      "Kerberos user enumeration (kerbrute)": ["kerbrute userenum -d example.local --dc 10.0.0.10 users.txt"],
+      "LDAP anonymous bind allowed": ["ldapsearch -x -H ldap://dc.example.local -b '' -s base"],
+      "Network range scan": ["nmap -sn 10.0.0.0/24"],
+      "Live host scan": ["arp-scan -l || fping -asgq 10.0.0.0/24"],
+      "Port scan (service, version, OS, UDP, TCP)": ["nmap -sS -sV -O -p- 10.0.0.0/24"],
+      "SNMP enumeration (snmpcheck, snmpwalk)": ["snmpwalk -v2c -c public 10.0.0.10 1.3.6.1.2.1.1"],
+      "NetBIOS enumeration (nbtscan, nbtlookup)": ["nbtscan 10.0.0.0/24"],
+      "FTP enumeration (default/guessable creds, anonymous login)": ["hydra -l anonymous -p anonymous ftp://10.0.0.20"],
+      "SMTP enumeration (telnet connection, user enumeration, SMTP relay)": ["smtp-user-enum -M VRFY -U users.txt -t mail.example.local"],
+      "DNS enumeration (reverse/bruteforce/records/zone transfer)": ["dig @ns1.example.com example.com AXFR"],
+      "NFS enumeration (showmount, root‑squashing)": ["showmount -e 10.0.0.20"],
+      "LDAP/AD enumeration (null creds)": ["ldapsearch -x -H ldap://dc.example.local -b 'DC=example,DC=local'"]
+    },
+    "AD Enumeration": {
+      "LDAP dump (ldapdomaindump)": ["ldapdomaindump -u 'EXAMPLE\\user' -p 'Passw0rd' 10.0.0.10 -o dump"],
+      "BloodHound collection": ["bloodhound-python -d example.local -u user -p 'Passw0rd' -ns 10.0.0.10 -c All"],
+      "Find AS‑REP roastable users": ["GetNPUsers.py example.local/ -dc-ip 10.0.0.10 -usersfile users.txt -outputfile asrep.hashes"],
+      "Find Kerberoastable SPNs": ["GetUserSPNs.py example.local/user:Passw0rd -dc-ip 10.0.0.10 -request"],
+      "Unconstrained/Constrained delegation inventory": ["rpcdump.py @dc | grep -i 'spoolss'"],
+      "RBCD candidates (KeyCredentialLink/msDS-AllowedToAct...)": ["python3 findDelegation.py -domain example.local -dc-ip 10.0.0.10 -user user -password 'Passw0rd'"],
+      "User enumeration": ["enum4linux-ng -A dc.example.local"],
+      "Domain groups enumeration": ["ldapsearch -x -H ldap://dc -b 'DC=example,DC=local' objectClass=group | grep -i cn:"],
+      "Access domain shares": ["smbclient -L \\\\dc.example.local -N"],
+      "Local admins enumeration": ["crackmapexec smb 10.0.0.0/24 --local-auth --users"],
+      "Logged‑on users/admins": ["crackmapexec smb 10.0.0.0/24 -u user -p Passw0rd --loggedon"]
+    },
+    "Lateral Movement": {
+      "PsExec / SMBExec / ATExec (Impacket)": ["psexec.py EXAMPLE/user:Passw0rd@10.0.0.20","smbexec.py EXAMPLE/user:Passw0rd@10.0.0.20","atexec.py EXAMPLE/user:Passw0rd@10.0.0.20 'whoami'"],
+      "PowerShell remoting": ["evil-winrm -i dc.example.local -u user -p 'Passw0rd'"],
+      "WMI remote command execution (Impacket, PowerShell)": ["wmiexec.py example.local/user:'Passw0rd'@host"],
+      "Pass‑the‑Hash / Over‑Pass‑the‑Hash / Pass‑the‑Ticket": ["crackmapexec smb 10.0.0.0/24 -u user -H <NTLMHASH> --local-auth"],
+      "Resource‑based constrained delegation": ["rpcdump.py @dc | grep -i spoolss && petitpotam.py -d example.local -u user -p 'Passw0rd' 10.0.0.10"],
+      "AD CS abuse (BloodHound, Certipy, Certify)": ["certipy find -u user@example.local -p 'Passw0rd' -dc-ip 10.0.0.10"]
+    },
+    "Domain Escalation": {
+      "AddMember/WriteDACL/WriteOwner abuse": ["bloodhound-python -c ACL","addComputer.py -computer-name 'WS123$' -computer-pass 'XyZ!2345' -dc-ip 10.0.0.10"],
+      "Shadow Credentials (KeyCredentialLink)": ["python3 pyWhisker.py -d example.local -u user -p 'Passw0rd' --target 'CN=DC,OU=Domain Controllers,DC=example,DC=local' --action add"],
+      "Kerberoasting / AS‑REP roasting (mimikatz, crackmapexec, metasploit, impacket)": ["GetUserSPNs.py example.local/user:Passw0rd -dc-ip 10.0.0.10 -request -outputfile kerberoast.hashes"],
+      "GPO/ACL abuses (GenericAll, GenericWrite)": ["powerview.ps1; Get-DomainObjectACL -Identity 'Domain Admins' | ?{$_.ActiveDirectoryRights -match 'Write'}"]
+    },
+    "Domain Persistence": {
+      "AdminSDHolder backdoor": ["powerview.ps1; Get-ADObject 'CN=AdminSDHolder,CN=System,DC=example,DC=local' -Properties nTSecurityDescriptor"],
+      "GPO Scheduled Task backdoor": ["gpotool /verbose || echo 'manipuler via powerview'"],
+      "Golden ticket": ["echo 'mimikatz kerberos::golden /domain:example.local ...'"],
+      "DCSync / DCShadow attack": ["secretsdump.py -just-dc example.local/administrator:'Passw0rd'@dc.example.local"]
+    }
+  }
+};
+
+/***** Etat *****/
+const STORAGE_KEY='pentest_global_checklist_state';
+const state = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+const save = ()=>localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+const uid = (section, subgroup, text)=> (section+'::'+subgroup+'::'+text).toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9:\-]/g,'').slice(0,200);
+
+/***** Helpers *****/
+const $ = s=>document.querySelector(s);
+const make=(t,a={})=>Object.assign(document.createElement(t),a);
+
+/***** Rendu *****/
+const root = $('#root');
+const phaseSel = $('#phase');
+
+function buildPhaseOptions(){
+  phaseSel.innerHTML='<option value="">Toutes les sections</option>';
+  Object.keys(DATA).forEach(k=>phaseSel.append(make('option',{value:k,textContent:k})));
+}
+
+function resolveCmds(section, subgroup, text){
+  const sec = COMMANDS[section]||{}; const sub = sec[subgroup]||{}; return sub[text]||[]; // pas de fallback générique
+}
+
+function render(){
+  const filter = phaseSel.value;
+  root.innerHTML='';
+  const toc = $('#toc_links'); toc.innerHTML='';
+
+  // TOC toujours visible pour Web & AD
+  Object.keys(DATA).forEach(section=>{
+    const link = make('a',{href:'#sec_'+section.replace(/\s+/g,'_'),textContent:section});
+    link.addEventListener('click',()=>{ phaseSel.value=section; render(); });
+    toc.append(link);
+  });
+
+  for(const [section, groups] of Object.entries(DATA)){
+    if(filter && filter!==section) continue;
+    const sec = make('section',{className:'group', id:'sec_'+section.replace(/\s+/g,'_')});
+    const h = make('h3'); h.textContent = section; sec.append(h);
+
+    const itemsGrid = make('div',{className:'items'});
+    function addItem(subgroup, text){
+      const id = uid(section, subgroup, text);
+      const row = make('div',{className:'item'});
+      const cb = make('input',{type:'checkbox', id});
+      cb.checked = !!state[id];
+      cb.addEventListener('change',()=>{ state[id]=cb.checked; if(!cb.checked) delete state[id]; save(); refreshStats(); });
+      const label = make('label',{htmlFor:id, textContent:text, style:'flex:1'});
+
+      const cmds = resolveCmds(section, subgroup, text);
+      if(cmds.length){
+        const btn = make('button',{className:'btn-cmd', title:'Exemples de commandes', textContent:'💻 Cmd'});
+        const box = make('div',{className:'cmds'});
+        const pre = make('pre'); pre.textContent = cmds.join('\n');
+        const copyBtn = make('button',{textContent:'📋 Copier'});
+        copyBtn.addEventListener('click', async ()=>{ try{ await navigator.clipboard.writeText(pre.textContent); copyBtn.textContent='✅ Copié'; setTimeout(()=>copyBtn.textContent='📋 Copier',1200);}catch(e){ copyBtn.textContent='⚠️'; setTimeout(()=>copyBtn.textContent='📋 Copier',1200);} });
+        box.append(copyBtn, pre);
+        btn.addEventListener('click',()=>{ box.style.display = (box.style.display==='block' ? 'none' : 'block'); });
+        row.append(cb,label,btn,box);
+      } else {
+        row.append(cb,label);
+      }
+      itemsGrid.append(row);
+    }
+
+    for(const [subgroup, arr] of Object.entries(groups)){
+      const sh = make('div',{style:'grid-column:1/-1;font-weight:600;margin-top:4px'});
+      sh.textContent = subgroup + ' ';
+      const badge = make('span',{className:'pill', id:'badge_'+uid(section,subgroup,'_')}); badge.textContent='0%'; sh.append(badge);
+      itemsGrid.append(sh);
+      arr.forEach(text=>addItem(subgroup,text));
+    }
+
+    sec.append(itemsGrid); root.append(sec);
+  }
+  refreshStats();
+  $('#crumb').textContent = filter || 'Toutes';
+}
+
+/***** Stats (liées au filtre/section) *****/
+function refreshStats(){
+  const filter = phaseSel.value || '';
+  let total=0, checked=0;
+  for(const [section, groups] of Object.entries(DATA)){
+    if(filter && filter!==section) continue; // n'agrège que la section sélectionnée
+    for(const [sub, arr] of Object.entries(groups)){
+      const done = arr.filter(t=>state[uid(section,sub,t)]).length;
+      total += arr.length; checked += done;
+      const badge = document.getElementById('badge_'+uid(section,sub,'_'));
+      if(badge && (!filter || filter===section)){
+        badge.textContent = (arr.length?Math.round(done/arr.length*100):0)+'%';
+      }
+    }
+  }
+  $('#count_total').textContent = total;
+  $('#count_checked').textContent = checked;
+  const pct = total? Math.round(checked/total*100) : 0;
+  $('#pct_all').textContent = pct + '%';
+  $('#meter_all').style.width = pct + '%';
+}
+
+/***** Recherche *****/
+const q = document.getElementById('q');
+function applySearch(){
+  const term = q.value.trim().toLowerCase();
+  document.querySelectorAll('.item').forEach(it=>{
+    const show = !term || it.textContent.toLowerCase().includes(term);
+    it.style.display = show? 'flex':'none';
+  });
+}
+q.addEventListener('input', applySearch);
+
+/***** Reset / Theme *****/
+document.getElementById('btn_reset').addEventListener('click',()=>{
+  if(confirm('Réinitialiser toutes les cases ?')){ for(const k of Object.keys(state)) delete state[k]; save(); render(); }
+});
+
+const TKEY='pentest_theme';
+function setTheme(t){ document.body.setAttribute('data-theme',t); localStorage.setItem(TKEY,t); }
+setTheme(localStorage.getItem(TKEY)||'dark');
+document.getElementById('btn_theme').addEventListener('click',()=>{ setTheme(document.body.getAttribute('data-theme')==='dark'?'light':'dark'); });
+
+/***** Raccourcis *****/
+document.addEventListener('keydown',(e)=>{
+  if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='k'){ q.focus(); q.select(); e.preventDefault(); }
+});
+
+/***** Boutons de scroll contextuels *****/
+const topBtn=document.getElementById('scrollTopBtn');
+const bottomBtn=document.getElementById('scrollBottomBtn');
+const SHOW_THRESHOLD=300;
+function updateScrollButtons(){
+  const y=window.scrollY||document.documentElement.scrollTop;
+  const vh=window.innerHeight; const dh=Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+  topBtn.style.display = y>SHOW_THRESHOLD ? 'flex':'none';
+  bottomBtn.style.display = (y+vh < dh-SHOW_THRESHOLD) ? 'flex':'none';
+}
+window.addEventListener('scroll', updateScrollButtons, {passive:true});
+window.addEventListener('resize', updateScrollButtons);
+updateScrollButtons();
+
+topBtn.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+bottomBtn.addEventListener('click',()=>window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'}));
+
+/***** Init *****/
+buildPhaseOptions();
+phaseSel.addEventListener('change', ()=>{ render(); });
+render();
+applySearch();
+
+/***** Tests basiques (sanity checks) *****/
+(function runTests(){
+  const results=[]; const log=(name,ok,extra='')=>results.push({test:name, ok, extra});
+  try{
+    log('DATA contient Web', !!DATA.Web);
+    log('DATA contient Active Directory', !!DATA['Active Directory']);
+    // Test rendu de base
+    const items=document.querySelectorAll('.item');
+    log('Au moins 1 item rendu', items.length>0, 'items='+items.length);
+    // Test bouton Cmd sur un item connu
+    const id=uid('Web','Recon — Small scope (single website)','Identify web server, technologies and database (httpx)');
+    const row=document.getElementById(id)?.parentElement; // .item
+    const hasCmd=row? !!row.querySelector('.btn-cmd'):false;
+    log('Bouton Cmd présent pour httpx', hasCmd);
+    // Test progression liée au filtre
+    phaseSel.value='Web'; render();
+    let totalWeb=0; Object.values(DATA['Web']).forEach(arr=>{ if(Array.isArray(arr)) totalWeb+=arr.length; });
+    const shownTotal=parseInt(document.getElementById('count_total').textContent,10);
+    log('Compteur total = nb items Web', shownTotal===totalWeb, `got ${shownTotal} vs ${totalWeb}`);
+    // Test: pas de séquences \\u dans les chaînes (évite l'erreur Unicode)
+    const hasBad = (obj)=>{
+      let bad=false;
+      const walk=v=>{
+        if(bad) return; // early exit
+        if(typeof v==='string'){ if(v.includes('\\u')) bad=true; }
+        else if(Array.isArray(v)) v.forEach(walk);
+        else if(v && typeof v==='object') Object.values(v).forEach(walk);
+      };
+      walk(obj); return bad;
+    };
+    log('Aucune séquence \\u brute dans DATA', !hasBad(DATA));
+    log('Aucune séquence \\u brute dans COMMANDS', !hasBad(COMMANDS));
+  }catch(e){ console.error('Tests error', e); }
+  console.table(results);
+})();
+</script>
+</body>
+</html>
