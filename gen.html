@@ -163,6 +163,7 @@
       const scrollBottomBtn = $('scrollBottomBtn');
 
       const templates = [
+		{key:'', cmd:'ping -c3 {{IP}}'},
         {key:'', cmd:'nmap -T4 -A -v -p- --open {{IP}} -oN nmap.txt'},
         {key:'', cmd:'sudo nmap -sU --top-ports=100 -T4 --open -v --min-rate=1000 {{IP}}'},
         {key:'', cmd:'dirsearch -u {{URL}} -x 403,404,400'},
