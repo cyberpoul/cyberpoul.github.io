@@ -285,7 +285,7 @@
         OWNER: 'cyberpoul',
         REPO: 'cyberpoul.github.io',
         FILE_PATH: 'assets/vulns.json',
-        BRANCH: 'main' // Changez en 'master' si votre branche s'appelle ainsi
+        BRANCH: 'main'
     };
 
     // =================================================================
@@ -297,10 +297,8 @@
     let githubToken = localStorage.getItem('gh_token') || "";
 
     async function init() {
-        // 1. Essayer de charger les données depuis GitHub
         await loadFromGitHub();
         
-        // 2. Si échec ou vide, fallback sur localStorage ou vide
         if (vulns.length === 0) {
             const savedData = localStorage.getItem('vulndb_v3_pro');
             if (savedData) vulns = JSON.parse(savedData);
@@ -312,7 +310,7 @@
     }
 
     // =================================================================
-    // GESTION GITHUB (API)
+    // GESTION GITHUB (API) - CORRECTION STRICTE NETWORK ERROR
     // =================================================================
     function checkTokenStatus() {
         const btn = document.getElementById('btn-save');
@@ -341,6 +339,7 @@
 
     async function loadFromGitHub() {
         try {
+            // Lecture raw, pas de CORS ici généralement
             const url = `https://raw.githubusercontent.com/${GITHUB_CONFIG.OWNER}/${GITHUB_CONFIG.REPO}/${GITHUB_CONFIG.BRANCH}/${GITHUB_CONFIG.FILE_PATH}?t=${Date.now()}`;
             const response = await fetch(url);
             if (response.ok) {
@@ -361,34 +360,47 @@
         btn.innerHTML = "⏳ Envoi...";
         
         try {
-            // 1. Get SHA
-            const getUrl = `https://api.github.com/repos/${GITHUB_CONFIG.OWNER}/${GITHUB_CONFIG.REPO}/contents/${GITHUB_CONFIG.FILE_PATH}`;
-            const getResp = await fetch(getUrl, {
-                headers: { 'Authorization': `token ${githubToken}` }
+            // URL de l'API standard
+            const apiUrl = `https://api.github.com/repos/${GITHUB_CONFIG.OWNER}/${GITHUB_CONFIG.REPO}/contents/${GITHUB_CONFIG.FILE_PATH}`;
+
+            // 1. GET SHA 
+            // Note: On retire Cache-Control dans les headers pour éviter le blocage CORS du navigateur
+            // On utilise ?t=... pour le cache-busting
+            const getResp = await fetch(apiUrl + `?ref=${GITHUB_CONFIG.BRANCH}&t=${Date.now()}`, {
+                method: 'GET',
+                headers: { 
+                    'Authorization': `token ${githubToken}`,
+                    'Accept': 'application/vnd.github.v3+json' // Header standard GitHub obligatoire
+                }
             });
             
             let sha = null;
             if (getResp.ok) {
                 const fileData = await getResp.json();
                 sha = fileData.sha;
+            } else if (getResp.status === 404) {
+                console.log("Fichier non trouvé, création...");
+            } else {
+                const errText = await getResp.text();
+                throw new Error(`Erreur récupération SHA (${getResp.status}): ${errText}`);
             }
 
             // 2. Encode Content
             const content = JSON.stringify(vulns, null, 2);
-            // Solution Unicode Safe pour Base64
             const contentEncoded = btoa(unescape(encodeURIComponent(content)));
 
-            // 3. Update
-            const putResp = await fetch(getUrl, {
+            // 3. Update (PUT)
+            const putResp = await fetch(apiUrl, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `token ${githubToken}`,
+                    'Accept': 'application/vnd.github.v3+json',
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     message: `Update VulnDB via Web Interface (${new Date().toLocaleDateString()})`,
                     content: contentEncoded,
-                    sha: sha,
+                    sha: sha, 
                     branch: GITHUB_CONFIG.BRANCH
                 })
             });
@@ -398,17 +410,19 @@
             } else {
                 const err = await putResp.json();
                 alert("❌ Erreur GitHub: " + (err.message || "Inconnue"));
+                console.error(err);
             }
 
         } catch (e) {
-            alert("❌ Erreur Réseau: " + e);
+            alert("❌ Erreur Réseau ou Config: " + e);
+            console.error(e);
         } finally {
             btn.innerHTML = originalText;
         }
     }
 
     // =================================================================
-    // LOGIQUE UI (Identique à avant)
+    // LOGIQUE UI (Standard)
     // =================================================================
     function saveLocal() {
         localStorage.setItem('vulndb_v3_pro', JSON.stringify(vulns));
