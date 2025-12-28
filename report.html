@@ -2,7 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VulnDB Pro - Pentest Report</title>
+    <title>VulnDB - Pentest Report</title>
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
     <style>
         /* --- VARIABLES & THEME SOMBRE UNIQUE --- */
@@ -163,7 +163,7 @@
 
 <aside>
     <div class="brand">
-        <div class="brand-text">VulnDB <span>Pro</span></div>
+        <div class="brand-text">VulnDB <span>Report</span></div>
     </div>
     
     <div class="add-wrapper">
@@ -310,7 +310,7 @@
     }
 
     // =================================================================
-    // GESTION GITHUB (API) - ANTI CACHE ULTIME
+    // GESTION GITHUB (API) - CORRECTION STRICTE NETWORK ERROR
     // =================================================================
     function checkTokenStatus() {
         const btn = document.getElementById('btn-save');
@@ -320,7 +320,7 @@
             btn.style.border = "1px dashed orange";
             btn.onclick = configureToken;
         } else {
-            btn.innerHTML = "☁️ Sauvegarder en ligne";
+            btn.innerHTML = "☁️ Sauvegarder";
             btn.style.color = "var(--accent)";
             btn.style.border = "1px solid transparent";
             btn.onclick = syncToGitHub;
@@ -339,12 +339,12 @@
 
     async function loadFromGitHub() {
         try {
-            // AJOUT: { cache: "no-store" } force le navigateur a ne pas utiliser son cache interne
+            // Lecture raw, pas de CORS ici généralement
             const url = `https://raw.githubusercontent.com/${GITHUB_CONFIG.OWNER}/${GITHUB_CONFIG.REPO}/${GITHUB_CONFIG.BRANCH}/${GITHUB_CONFIG.FILE_PATH}?t=${Date.now()}`;
-            const response = await fetch(url, { cache: "no-store" }); 
+            const response = await fetch(url);
             if (response.ok) {
                 vulns = await response.json();
-                console.log("Données chargées depuis GitHub (Fresh)");
+                console.log("Données chargées depuis GitHub");
                 saveLocal(); 
             }
         } catch (e) {
@@ -360,15 +360,17 @@
         btn.innerHTML = "⏳ Envoi...";
         
         try {
-            // URL API
+            // URL de l'API standard
             const apiUrl = `https://api.github.com/repos/${GITHUB_CONFIG.OWNER}/${GITHUB_CONFIG.REPO}/contents/${GITHUB_CONFIG.FILE_PATH}`;
 
-            // 1. GET SHA (Méthode clean sans paramètres qui bloquent)
+            // 1. GET SHA 
+            // Note: On retire Cache-Control dans les headers pour éviter le blocage CORS du navigateur
+            // On utilise ?t=... pour le cache-busting
             const getResp = await fetch(apiUrl + `?ref=${GITHUB_CONFIG.BRANCH}&t=${Date.now()}`, {
                 method: 'GET',
                 headers: { 
                     'Authorization': `token ${githubToken}`,
-                    'Accept': 'application/vnd.github.v3+json'
+                    'Accept': 'application/vnd.github.v3+json' // Header standard GitHub obligatoire
                 }
             });
             
