@@ -1,5 +1,13 @@
 [
   {
+    "id": "new_1766947263949",
+    "cat": "Web",
+    "sev": "Moyen",
+    "title": "Nouvelle Vulnérabilité",
+    "desc": "<p>Description...</p>",
+    "reco": "<p>Action...</p>"
+  },
+  {
     "id": "ad1",
     "cat": "Active Directory",
     "sev": "Critique",
