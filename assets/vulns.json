@@ -37,7 +37,7 @@
   },
   {
     "id": "new_1766951055127",
-    "cat": "Réseau",
+    "cat": "Audit 360",
     "sev": "Élevée",
     "title": "Poisoning LLMNR, NBT-NS et WPAD",
     "desc": "<p>Protocoles de résolution de noms hérités. Un attaquant local peut répondre aux requêtes broadcast (Man-in-the-Middle) via des outils comme <strong>Responder</strong> pour voler des hashs NTLMv2 ou relayer l'authentification.</p>",
@@ -105,6 +105,114 @@
     "title": "ex: Kerberoasting",
     "desc": "<p>Le Kerberoasting permet à un utilisateur authentifié de demander un ticket de service (TGS) pour tout compte ayant un Service Principal Name (SPN). Le ticket reçu est chiffré avec le hash du mot de passe du compte de service, permettant une attaque par force brute hors ligne.</p>",
     "reco": "<ul><li>Utiliser des mots de passe complexes de plus de 25 caractères pour les comptes de service.</li><li>Utiliser des <strong>gMSA (Group Managed Service Accounts)</strong>.</li></ul>",
+    "translations": null
+  },
+  {
+    "id": "new_1766951055131",
+    "cat": "Audit 360",
+    "sev": "Critique",
+    "title": "Default Credentials (Identifiants par défaut)",
+    "desc": "<p>Utilisation d'identifiants d'usine (ex: <code>admin:admin</code>, <code>root:password</code>) sur des équipements réseaux, serveurs, imprimantes ou applications. C'est souvent la première porte d'entrée pour un attaquant lors d'un scan réseau.</p>",
+    "reco": "<ul>\n        <li>Changer systématiquement les mots de passe par défaut lors de la mise en service.</li>\n        <li>Réaliser des scans de vulnérabilités authentifiés pour détecter les identifiants par défaut oubliés.</li>\n        <li>Désactiver les comptes constructeurs non nécessaires.</li>\n    </ul>",
+    "translations": null
+  },
+  {
+    "id": "new_1766951055132",
+    "cat": "Poste de Travail",
+    "sev": "Élevée",
+    "title": "Hard-coded Credentials (Identifiants codés en dur)",
+    "desc": "<p>Présence de mots de passe, clés API ou jetons d'accès écrits directement dans le code source d'applications ou de scripts compilés. Ces secrets sont exposés à toute personne ayant accès au binaire ou au code (ingénierie inverse, décompilation).</p>",
+    "reco": "<ul>\n        <li>Utiliser des gestionnaires de secrets (ex: <strong>Azure Key Vault</strong>, <strong>HashiCorp Vault</strong>).</li>\n        <li>Stocker les secrets dans des variables d'environnement, jamais dans le code.</li>\n        <li>Scanner le code source (SAST) pour détecter les secrets avant déploiement.</li>\n    </ul>",
+    "translations": null
+  },
+  {
+    "id": "new_1766951055133",
+    "cat": "Active Directory",
+    "sev": "Élevée",
+    "title": "Credential Exposure in Scripts (Mots de passe en clair dans les scripts)",
+    "desc": "<p>Stockage de mots de passe en clair dans des scripts (PowerShell, VBS, Batch) souvent utilisés pour monter des lecteurs réseaux ou lancer des tâches planifiées. Ces fichiers sont souvent stockés sur des partages publics (SYSVOL) lisibles par tous.</p>",
+    "reco": "<ul>\n        <li>Utiliser les <strong>gMSA (Group Managed Service Accounts)</strong> pour les tâches planifiées.</li>\n        <li>Ne jamais stocker de mots de passe en clair ; utiliser <code>ConvertTo-SecureString</code> ou des coffres-forts de secrets.</li>\n        <li>Auditer les partages SYSVOL et NETLOGON à la recherche de fichiers contenant des chaînes sensibles.</li>\n    </ul>",
+    "translations": null
+  },
+  {
+    "id": "new_1766951055134",
+    "cat": "Audit 360",
+    "sev": "Élevée",
+    "title": "SMB Signing Disabled (Signature SMB désactivée)",
+    "desc": "<p>Lorsque la signature SMB n'est pas forcée, l'intégrité des paquets n'est pas garantie. Cela permet des attaques de type <strong>Man-in-the-Middle</strong> et surtout le <strong>Relais NTLM</strong>, où un attaquant intercepte une connexion pour s'authentifier sur une autre machine.</p>",
+    "reco": "<ul>\n        <li>Activer la GPO <em>Microsoft network server: Digitally sign communications (always)</em> sur les serveurs critiques.</li>\n        <li>Activer la signature SMB sur les postes de travail (impact de performance minime aujourd'hui).</li>\n        <li>Bloquer NTLMv1 et v2 à terme.</li>\n    </ul>",
+    "translations": null
+  },
+  {
+    "id": "new_1766951055135",
+    "cat": "Active Directory",
+    "sev": "Élevée",
+    "title": "LDAP Signing Disabled (Signature LDAP désactivée)",
+    "desc": "<p>Le trafic LDAP non signé vers les contrôleurs de domaine peut être intercepté et relayé. Un attaquant peut relayer une authentification NTLM vers le service LDAP du DC pour effectuer des modifications dans l'annuaire (ajout d'utilisateur, modification de droits).</p>",
+    "reco": "<ul>\n        <li>Configurer les contrôleurs de domaine pour exiger la signature LDAP (LdapEnforceChannelBinding).</li>\n        <li>Activer l'audit (Event ID 2889) pour identifier les applications incompatibles avant blocage.</li>\n    </ul>",
+    "translations": null
+  },
+  {
+    "id": "new_1766951055136",
+    "cat": "Poste de Travail",
+    "sev": "Critique",
+    "title": "NTLMv1 Enabled",
+    "desc": "<p>Le protocole NTLMv1 est obsolète et utilise un algorithme de chiffrement très faible (DES). Il est trivial pour un attaquant de casser un hash NTLMv1 ou de le relayer. Sa présence compromet la sécurité de tout le domaine.</p>",
+    "reco": "<ul>\n        <li>Forcer l'utilisation de <strong>NTLMv2 uniquement</strong> via GPO : <em>Network security: LAN Manager authentication level</em> (Send NTLMv2 response only. Refuse LM & NTLM).</li>\n        <li>Idéalement, désactiver complètement NTLM pour passer en 100% Kerberos.</li>\n    </ul>",
+    "translations": null
+  },
+  {
+    "id": "new_1766951055137",
+    "cat": "Active Directory",
+    "sev": "Élevée",
+    "title": "Insecure GPO Permissions (Permissions GPO non sécurisées)",
+    "desc": "<p>Si des utilisateurs non-administrateurs ont des droits d'écriture sur un objet GPO (Group Policy Object), ils peuvent modifier la politique pour déployer des scripts malveillants, créer des comptes admins ou désactiver des sécurités sur l'ensemble du parc informatique.</p>",
+    "reco": "<ul>\n        <li>Auditer les ACLs des objets GPO (via PowerView ou PingCastle).</li>\n        <li>Restreindre les droits d'écriture aux seuls <strong>Domain Admins</strong> et <strong>Enterprise Admins</strong>.</li>\n        <li>Surveiller les modifications des GPO.</li>\n    </ul>",
+    "translations": null
+  },
+  {
+    "id": "new_1766951055138",
+    "cat": "Active Directory",
+    "sev": "Élevée",
+    "title": "Sensitive Data in Group Policies (GPP Passwords)",
+    "desc": "<p>Ancienne fonctionnalité (Group Policy Preferences) permettant de définir des mots de passe (admin local, lecteur réseau) via GPO. Ces mots de passe sont stockés chiffrés dans des fichiers XML sur SYSVOL, mais la clé de déchiffrement a été publiée par Microsoft (MS14-025), rendant leur lecture triviale.</p>",
+    "reco": "<ul>\n        <li>Scanner SYSVOL pour trouver les fichiers <code>Groups.xml</code>, <code>Services.xml</code>, etc.</li>\n        <li>Supprimer immédiatement ces fichiers XML.</li>\n        <li>Utiliser <strong>LAPS</strong> pour la gestion des administrateurs locaux.</li>\n    </ul>",
+    "translations": null
+  },
+  {
+    "id": "new_1766951055139",
+    "cat": "Audit 360",
+    "sev": "Moyenne",
+    "title": "Exposed DNS Records (Zone Transfers - AXFR)",
+    "desc": "<p>Un serveur DNS mal configuré autorise le transfert de zone (requête AXFR) depuis n'importe quelle IP. Cela permet à un attaquant (même externe) de récupérer la liste complète des sous-domaines et machines du réseau, facilitant la cartographie de l'infrastructure.</p>",
+    "reco": "<ul>\n        <li>Configurer les serveurs DNS pour refuser les transferts de zone globaux.</li>\n        <li>N'autoriser les transferts de zone que vers des adresses IP spécifiques (les serveurs DNS secondaires).</li>\n    </ul>",
+    "translations": null
+  },
+  {
+    "id": "new_1766951055140",
+    "cat": "Audit 360",
+    "sev": "Critique",
+    "title": "Unrestricted RDP Access (RDP non restreint)",
+    "desc": "<p>Le service Bureau à distance (RDP, port 3389) est accessible à tout le monde ("Everyone") ou exposé directement sur Internet. Cible privilégiée pour les attaques Brute-force, le Credential Stuffing et l'exploitation de failles comme BlueKeep.</p>",
+    "reco": "<ul>\n        <li>Ne jamais exposer RDP sur Internet (utiliser un VPN ou une passerelle RD Gateway).</li>\n        <li>Restreindre l'accès RDP aux seuls groupes d'administration et IPs de management.</li>\n        <li>Activer l'authentification au niveau du réseau (NLA).</li>\n    </ul>",
+    "translations": null
+  },
+  {
+    "id": "new_1766951055141",
+    "cat": "Active Directory",
+    "sev": "Critique",
+    "title": "NTDS.dit Unauthorized Access",
+    "desc": "<p>Le fichier <strong>NTDS.dit</strong> est la base de données de l'Active Directory contenant tous les objets et surtout les hashs de mots de passe (KRBTGT, Admins). Un accès non autorisé (via des sauvegardes ou Shadow Copy VSS) permet à l'attaquant de copier la base et de l'extraire hors ligne pour retrouver tous les mots de passe.</p>",
+    "reco": "<ul>\n        <li>Restreindre strictement l'accès physique et logique aux Contrôleurs de Domaine (Tier 0).</li>\n        <li>Surveiller la création de clichés instantanés (VSS) sur les DCs.</li>\n        <li>Chiffrer les sauvegardes des contrôleurs de domaine.</li>\n    </ul>",
+    "translations": null
+  },
+  {
+    "id": "new_1766951055142",
+    "cat": "Audit 360",
+    "sev": "Élevée",
+    "title": "Weak Admin Tiering Implementation (Tiering faible)",
+    "desc": "<p>Absence de séparation des privilèges. Les administrateurs de domaine (Tier 0) se connectent sur des postes de travail standards (Tier 2). Si un poste est compromis, l'attaquant peut voler la session admin (LSASS dump) et compromettre tout le domaine.</p>",
+    "reco": "<ul>\n        <li>Implémenter le modèle de <strong>Tiering</strong> (T0, T1, T2).</li>\n        <li>Utiliser des <strong>PAW (Privileged Access Workstations)</strong> pour l'administration.</li>\n        <li>Configurer des GPO "Deny Logon" pour empêcher les Admins T0 de se connecter sur des machines T1/T2.</li>\n    </ul>",
     "translations": null
   }
 ]
