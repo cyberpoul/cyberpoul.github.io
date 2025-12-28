@@ -9,6 +9,60 @@
     "translations": null
   },
   {
+    "id": "new_1766951055122",
+    "cat": "Active Directory",
+    "sev": "Élevée",
+    "title": "BadSuccessor (Abus d'attributs de schéma / SDProp)",
+    "desc": "<p>Abus d'attributs de liaison hérités ou mal configurés (ex: <code>assistant</code>, <code>secretary</code>, <code>managedBy</code>). Des mécanismes comme <strong>SDProp</strong> peuvent propager des permissions basées sur ces attributs. Un attaquant ayant le droit <code>WriteProperty</code> sur ces champs peut s'octroyer des droits sur des comptes protégés.</p>",
+    "reco": "<ul>\n        <li>Auditer les ACLs pour identifier les droits d'écriture sur les attributs de liaison sensibles.</li>\n        <li>Surveiller les modifications sur les objets protégés par <strong>AdminSDHolder</strong>.</li>\n        <li>Nettoyer le schéma AD des attributs obsolètes.</li>\n    </ul>",
+    "translations": null
+  },
+  {
+    "id": "new_1766951055125",
+    "cat": "Active Directory",
+    "sev": "Élevée",
+    "title": "Kerberoasting (Ciblage des SPN)",
+    "desc": "<p>Attaque visant les comptes de service avec un <strong>SPN</strong>. Un attaquant demande un ticket TGS pour le service, qui est chiffré avec le hash du mot de passe du compte. L'attaquant tente ensuite de casser ce hash hors-ligne (Brute-force) pour trouver le mot de passe en clair.</p>",
+    "reco": "<ul>\n        <li>Utiliser des mots de passe complexes (> 25 caractères) pour les comptes de service.</li>\n        <li>Utiliser des <strong>gMSA (Group Managed Service Accounts)</strong>.</li>\n        <li>Forcer le chiffrement Kerberos <strong>AES</strong> via GPO.</li>\n    </ul>",
+    "translations": null
+  },
+  {
+    "id": "new_1766951055126",
+    "cat": "Active Directory",
+    "sev": "Moyenne",
+    "title": "AS-REP Roasting (Kerberos Pre-Auth Disabled)",
+    "desc": "<p>Cible les utilisateurs dont l'option <em>Do not require Kerberos preauthentication</em> est activée. Le contrôleur de domaine envoie un ticket TGT chiffré (AS-REP) sans preuve d'identité. Ce bloc peut être cassé hors-ligne pour retrouver le mot de passe.</p>",
+    "reco": "<ul>\n        <li>S'assurer que l'option <em>Do not require Kerberos preauthentication</em> est décochée pour tous.</li>\n        <li>Auditer via PowerShell : <code>Get-ADUser -Filter {DoesNotRequirePreAuth -eq $True}</code>.</li>\n    </ul>",
+    "translations": null
+  },
+  {
+    "id": "new_1766951055127",
+    "cat": "Réseau",
+    "sev": "Élevée",
+    "title": "Poisoning LLMNR, NBT-NS et WPAD",
+    "desc": "<p>Protocoles de résolution de noms hérités. Un attaquant local peut répondre aux requêtes broadcast (Man-in-the-Middle) via des outils comme <strong>Responder</strong> pour voler des hashs NTLMv2 ou relayer l'authentification.</p>",
+    "reco": "<ul>\n        <li>Désactiver <strong>LLMNR</strong> via GPO.</li>\n        <li>Désactiver <strong>NBT-NS</strong> (WINS) sur les cartes réseaux/DHCP.</li>\n        <li>Désactiver la détection proxy <strong>WPAD</strong> et créer une entrée DNS <code>wpad</code> vers 127.0.0.1.</li>\n    </ul>",
+    "translations": null
+  },
+  {
+    "id": "new_1766951055124",
+    "cat": "Active Directory",
+    "sev": "Élevée",
+    "title": "Délégation Kerberos sans contrainte (Unconstrained Delegation)",
+    "desc": "<p>Configuration risquée où un serveur stocke en mémoire les TGT complets des utilisateurs qui s'y connectent. Si un attaquant compromet un serveur en <strong>Unconstrained Delegation</strong>, il peut voler les TGT des administrateurs et usurper leur identité sur tout le réseau.</p>",
+    "reco": "<ul>\n        <li>Migrer vers la <strong>Délégation Contrainte</strong> ou la <strong>RBCD</strong>.</li>\n        <li>Auditer les machines avec l'attribut <code>TRUSTED_FOR_DELEGATION</code>.</li>\n        <li>Activer <em>Account is sensitive and cannot be delegated</em> pour les comptes Admins.</li>\n    </ul>",
+    "translations": null
+  },
+  {
+    "id": "new_1766951055123",
+    "cat": "Active Directory",
+    "sev": "Moyenne",
+    "title": "Énumération Anonyme et Sessions Nulles (SMB/LDAP)",
+    "desc": "<p>Configurations permettant à un attaquant non authentifié de récolter des données. La <strong>Null Session SMB</strong> permet d'énumérer les utilisateurs (RID Cycling). L'<strong>accès anonyme LDAP</strong> permet de dumper l'annuaire complet (utilisateurs, groupes, descriptions).</p>",
+    "reco": "<ul>\n        <li>Bloquer l'énumération anonyme LDAP via l'attribut <code>DsHeuristics</code> et GPO.</li>\n        <li>Désactiver les sessions nulles SMB via la clé de registre <code>RestrictAnonymous</code> (valeur 1 ou 2).</li>\n        <li>Vérifier avec des outils comme <code>windapsearch</code>.</li>\n    </ul>",
+    "translations": null
+  },
+  {
     "id": "new_1766951120641",
     "cat": "Active Directory",
     "sev": "Moyen",
