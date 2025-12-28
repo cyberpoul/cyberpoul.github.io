@@ -1,0 +1,634 @@
+<html lang="fr"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VulnDB Pro - Pentest Report</title>
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <style>
+        /* --- VARIABLES & THEME SOMBRE UNIQUE --- */
+        :root {
+            --font-main: 'Inter', sans-serif;
+            --radius: 8px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* Couleurs Sévérité */
+            --sev-crit: #ef4444; 
+            --sev-high: #f97316; 
+            --sev-med: #eab308;  
+            --sev-low: #22c55e;
+            --sev-info: #3b82f6; 
+
+            /* Theme Dark Hardcodé */
+            --bg-body: #0f172a; 
+            --bg-sidebar: #020617;
+            --bg-panel: #1e293b;
+            --bg-card: #1e293b;
+            --bg-hover: rgba(255,255,255,0.05);
+            --bg-input: #0b1120;
+            --border: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.2);
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            --scrollbar-thumb: #475569;
+        }
+
+        * { box-sizing: border-box; outline: none; }
+        html { scroll-behavior: smooth; }
+        body { font-family: var(--font-main); background: var(--bg-body); color: var(--text-main); height: 100vh; display: flex; overflow: hidden; margin: 0; font-size: 14px; }
+
+        /* --- SCROLLBARS STYLÉS --- */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        /* --- SIDEBAR --- */
+        aside { width: 300px; background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 20; }
+        
+        .brand { padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+        .brand-text { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.5px; color: var(--text-main); }
+        .brand-text span { color: var(--accent); }
+
+        .add-wrapper { padding: 1rem 1rem 0 1rem; }
+        .add-btn { width: 100%; background: var(--accent-glow); border: 1px dashed var(--accent); color: var(--accent); padding: 12px; border-radius: var(--radius); cursor: pointer; transition: var(--transition); font-weight: 600; text-align: center; }
+        .add-btn:hover { background: var(--accent); color: white; border-style: solid; box-shadow: 0 0 15px var(--accent-glow); }
+
+        .nav { flex: 1; overflow-y: auto; padding: 1rem; }
+        .nav-item { padding: 10px 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); border-radius: var(--radius); margin-bottom: 4px; transition: var(--transition); border-left: 3px solid transparent; }
+        .nav-item:hover { background: var(--bg-hover); color: var(--text-main); }
+        .nav-item.active { background: var(--accent-glow); color: var(--accent); font-weight: 600; border-left-color: var(--accent); }
+        .badge { background: var(--bg-input); padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; border: 1px solid var(--border); }
+
+        .footer { padding: 15px; border-top: 1px solid var(--border); font-size: 0.8rem; color: var(--text-muted); text-align: center; background: var(--bg-sidebar); }
+        .footer-btn { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 1.2rem; opacity: 0.8; transition: var(--transition); }
+        .footer-btn:hover { opacity: 1; transform: scale(1.1); }
+        .copyright { margin-top: 15px; font-size: 0.7rem; opacity: 0.6; }
+        .copyright a { color: var(--accent); text-decoration: none; transition: var(--transition); }
+        .copyright a:hover { text-decoration: underline; opacity: 1; }
+
+        /* --- MAIN CONTENT --- */
+        main { flex: 1; display: flex; flex-direction: column; position: relative; background: var(--bg-body); }
+        
+        .top-bar { height: 70px; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 2rem; justify-content: space-between; background: var(--bg-sidebar); }
+        .breadcrumb { font-weight: 600; color: var(--text-main); font-size: 1.1rem; }
+        
+        .search-container input { width: 280px; padding: 10px 16px; border-radius: 20px; border: 1px solid var(--border); background: var(--bg-input); color: var(--text-main); font-size: 0.9rem; transition: var(--transition); }
+        .search-container input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+
+        .grid { padding: 2rem; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem; align-content: start; }
+        
+        /* --- CARDS --- */
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; cursor: pointer; transition: var(--transition); position: relative; overflow: hidden; display: flex; flex-direction: column; height: 160px; box-shadow: var(--shadow); }
+        .card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 15px 30px -5px rgba(0,0,0,0.2); }
+        .card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--sev-color); }
+        
+        .card-header { display: flex; justify-content: space-between; margin-bottom: 0.8rem; }
+        .sev-pill { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: var(--sev-color); letter-spacing: 0.5px; background: color-mix(in srgb, var(--sev-color), transparent 90%); padding: 3px 8px; border-radius: 4px; border: 1px solid color-mix(in srgb, var(--sev-color), transparent 70%); }
+        
+        .card h3 { font-size: 1.05rem; font-weight: 600; margin: 0 0 auto 0; color: var(--text-main); line-height: 1.4; }
+        .tags { display: flex; gap: 8px; margin-top: 1rem; }
+        .tag { font-size: 0.75rem; background: var(--bg-input); padding: 4px 10px; border-radius: 6px; color: var(--text-muted); border: 1px solid var(--border); }
+
+        /* --- PANEL (SLIDE OVER) --- */
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 50; display: none; opacity: 0; transition: opacity 0.3s; }
+        .panel { position: absolute; top: 0; right: -950px; width: 950px; height: 100%; background: var(--bg-panel); border-left: 1px solid var(--border); display: flex; flex-direction: column; transition: right 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); z-index: 60; box-shadow: -10px 0 50px rgba(0,0,0,0.5); }
+        .panel.open { right: 0; }
+        
+        .panel-header { padding: 1.5rem 2.5rem; border-bottom: 1px solid var(--border); background: var(--bg-sidebar); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        .panel-content { flex: 1; overflow-y: auto; padding: 3rem; position: relative; }
+
+        /* --- VUE LECTURE --- */
+        .hidden { display: none !important; }
+        
+        .title-row { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 15px; }
+        .title-row h1 { font-size: 1.8rem; color: var(--text-main); margin: 0; line-height: 1.2; flex: 1; font-weight: 700; }
+        .meta-line { margin-bottom: 30px; display: flex; gap: 15px; align-items: center; font-size: 0.9rem; color: var(--text-muted); font-family: monospace; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+        
+        .read-section { margin-bottom: 3rem; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .section-head { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+        .section-head h2 { font-size: 1rem; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 8px; }
+        
+        /* Contenu Riche */
+        .rich-text { color: var(--text-main); line-height: 1.7; font-size: 1rem; }
+        .rich-text p, .rich-text li { margin-bottom: 1rem; color: var(--text-main); opacity: 0.9; }
+        .rich-text strong { color: var(--accent); font-weight: 600; }
+        .rich-text code { background: var(--bg-input); color: var(--accent); padding: 2px 5px; border-radius: 4px; font-family: monospace; border: 1px solid var(--border); }
+        .rich-text pre { background: #020617; padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border); overflow-x: auto; margin: 1.5rem 0; font-family: monospace; color: #e2e8f0; font-size: 0.9rem; position: relative; }
+
+        /* --- VUE EDITION --- */
+        .input-group { margin-bottom: 1.5rem; }
+        label { display: block; color: var(--accent); font-size: 0.75rem; font-weight: 700; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        input, select, textarea { width: 100%; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); padding: 12px; border-radius: var(--radius); font-family: var(--font-main); font-size: 0.95rem; transition: var(--transition); }
+        input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+        textarea { min-height: 200px; line-height: 1.6; font-family: monospace; }
+
+        /* --- BOUTONS --- */
+        .btn { padding: 8px 16px; border-radius: var(--radius); font-weight: 600; border: none; cursor: pointer; transition: var(--transition); display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+        
+        .btn-primary { background: var(--accent); color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .btn-primary:hover { filter: brightness(110%); transform: translateY(-1px); }
+        
+        .btn-edit { background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border); }
+        .btn-edit:hover { border-color: var(--accent); color: var(--accent); }
+        
+        .btn-copy-small { 
+            background: var(--bg-input); border: 1px solid var(--border); color: var(--text-muted); 
+            padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; transition: var(--transition); display: flex; align-items: center; gap:6px; 
+        }
+        .btn-copy-small:hover { border-color: var(--accent); color: var(--accent); background: var(--bg-hover); }
+        .btn-copy-small.copied { border-color: var(--sev-low); color: var(--sev-low); background: rgba(34, 197, 94, 0.1); }
+        
+        /* Bouton Traduction (Toggle) */
+        .btn-translate-toggle { 
+            background: rgba(59, 130, 246, 0.1); border: 1px solid var(--sev-info); color: var(--sev-info);
+            padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; transition: var(--transition); display: flex; align-items: center; gap:6px; margin-left: auto;
+        }
+        .btn-translate-toggle:hover { background: var(--sev-info); color: white; }
+        .btn-translate-toggle.active { background: var(--sev-info); color: white; border-color: var(--sev-info); }
+        .btn-translate-toggle.loading { opacity: 0.7; cursor: wait; }
+
+        .btn-danger { background: rgba(239, 68, 68, 0.1); color: var(--sev-crit); border: 1px solid transparent; }
+        .btn-danger:hover { background: var(--sev-crit); color: white; }
+        
+        .btn-close { background: transparent; color: var(--text-muted); font-size: 1.8rem; padding: 0 10px; border: none; cursor: pointer; transition: 0.2s; }
+        .btn-close:hover { color: var(--text-main); transform: rotate(90deg); }
+
+    </style>
+</head>
+<body>
+
+<aside>
+    <div class="brand">
+        <div class="brand-text">VulnDB <span>Pro</span></div>
+    </div>
+    
+    <div class="add-wrapper">
+        <div class="add-btn" onclick="addNewVuln()">+ Nouvelle Fiche</div>
+    </div>
+
+    <div class="nav" id="nav"><div class="nav-item active" onclick="filter('All', this)"><span>Tout voir</span> <span class="badge">2</span></div><div class="nav-item" onclick="filter('Active Directory', this)"><span>Active Directory</span> <span class="badge">2</span></div><div class="nav-item" onclick="filter('Web', this)"><span>Web</span> <span class="badge">0</span></div><div class="nav-item" onclick="filter('Mobile', this)"><span>Mobile</span> <span class="badge">0</span></div><div class="nav-item" onclick="filter('Client Lourd', this)"><span>Client Lourd</span> <span class="badge">0</span></div><div class="nav-item" onclick="filter('Poste de Travail', this)"><span>Poste de Travail</span> <span class="badge">0</span></div><div class="nav-item" onclick="filter('Audit 360', this)"><span>Audit 360</span> <span class="badge">0</span></div><div class="nav-item" onclick="filter('Cloud', this)"><span>Cloud</span> <span class="badge">0</span></div><div class="nav-item" onclick="filter('Audit de Conf', this)"><span>Audit de Conf</span> <span class="badge">0</span></div></div>
+
+    <div class="footer">
+        <span>SAUVEGARDER</span><br><br>
+        <button class="footer-btn" onclick="downloadBackup()" title="Télécharger le fichier">💾</button>
+        <div class="copyright">
+            Made by <a href="https://github.com/cyberpoul" target="_blank">Opscur</a>
+        </div>
+    </div>
+</aside>
+
+<main>
+    <div class="top-bar">
+        <div class="breadcrumb" id="breadcrumb">Vue d'ensemble</div>
+        <div class="search-container">
+            <input type="text" id="search" placeholder="Rechercher...">
+        </div>
+    </div>
+    <div class="grid" id="grid"><div class="card" style="--sev-color: var(--sev-crit);">
+                <div class="card-header">
+                     <span class="sev-pill">Critique</span>
+                </div>
+                <h3>ex: Zerologon (CVE-2020-1472)</h3>
+                <div class="tags">
+                    <span class="tag">Active Directory</span>
+                </div>
+            </div><div class="card" style="--sev-color: var(--sev-high);">
+                <div class="card-header">
+                     <span class="sev-pill">Élevée</span>
+                </div>
+                <h3>ex: Kerberoasting</h3>
+                <div class="tags">
+                    <span class="tag">Active Directory</span>
+                </div>
+            </div></div>
+</main>
+
+<div class="overlay" id="overlay" onclick="closePanel()" style="display: none; opacity: 0;"></div>
+
+<div class="panel" id="panel">
+    <div class="panel-header">
+        <div style="display:flex; gap:12px; align-items:center;" id="header-actions">
+                <button class="btn btn-edit" onclick="toggleEditMode()">✏️ Modifier</button>
+                <button class="btn btn-danger" onclick="deleteCurrent()">🗑️ Supprimer</button>
+            </div>
+        <button class="btn-close" onclick="closePanel()">×</button>
+    </div>
+
+    <div class="panel-content">
+        
+        <div id="read-view" class="">
+            <div class="title-row">
+                <h1 id="read-title">ex: Kerberoasting</h1>
+                <button class="btn-translate-toggle" id="btn-translate-toggle" onclick="toggleCardTranslation(this)"><span>🇬🇧</span> EN</button>
+                <button class="btn-copy-small" onclick="copyText('title', this)"><span>Copier</span> 📋</button>
+            </div>
+            
+            <div class="meta-line" id="read-meta"><span>Catégorie: <strong style="color:var(--text-main)">Active Directory</strong></span>
+             <span style="width:1px; height:15px; background:var(--border)"></span>
+             <span>Sévérité: <strong style="color:var(--sev-high)">Élevée</strong></span></div>
+            
+            <div class="read-section">
+                <div class="section-head">
+                    <h2>📂 Description Technique</h2>
+                    <button class="btn-copy-small" onclick="copyText('desc', this)"><span>Copier</span> 📋</button>
+                </div>
+                <div id="read-desc" class="rich-text"><p>Le Kerberoasting permet à un utilisateur authentifié de demander un ticket de service (TGS) pour tout compte ayant un Service Principal Name (SPN). Le ticket reçu est chiffré avec le hash du mot de passe du compte de service, permettant une attaque par force brute hors ligne.</p></div>
+            </div>
+
+            <div class="read-section">
+                <div class="section-head">
+                    <h2>🛠️ Remédiation</h2>
+                    <button class="btn-copy-small" onclick="copyText('reco', this)"><span>Copier</span> 📋</button>
+                </div>
+                <div id="read-reco" class="rich-text"><ul><li>Utiliser des mots de passe complexes de plus de 25 caractères pour les comptes de service.</li><li>Utiliser des <strong>gMSA (Group Managed Service Accounts)</strong>.</li></ul></div>
+            </div>
+        </div>
+
+        <div id="edit-view" class="hidden">
+            <div class="input-group">
+                <label>Titre</label>
+                <input type="text" id="edit-title">
+            </div>
+            
+            <div style="display:grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+                <div class="input-group">
+                    <label>Catégorie</label>
+                    <select id="edit-cat">
+                        <option value="Active Directory">Active Directory</option>
+                        <option value="Web">Web</option>
+                        <option value="Mobile">Mobile</option>
+                        <option value="Client Lourd">Client Lourd</option>
+						<option value="Audit de conf">Audit de Conf</option>
+						<option value="Cloud">Cloud</option>
+						<option value="Audit 360">Audit 360</option>
+                        <option value="Poste de Travail">Poste de Travail</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Sévérité</label>
+                    <select id="edit-sev">
+                        <option value="Critique">Critique</option>
+                        <option value="Élevée">Élevée</option>
+                        <option value="Moyen">Moyen</option>
+                        <option value="Faible">Faible</option>
+                        <option value="Info">Info</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Description (HTML)</label>
+                <textarea id="edit-desc"></textarea>
+            </div>
+
+            <div class="input-group">
+                <label>Remédiation (HTML)</label>
+                <textarea id="edit-reco"></textarea>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // =================================================================
+    // 1. DONNÉES PAR DEFAUT
+    // =================================================================
+    const DEFAULT_DATA = [{"id":"ad1","cat":"Active Directory","sev":"Critique","title":"ex: Zerologon (CVE-2020-1472)","desc":"<p>Une vulnérabilité critique dans le protocole Netlogon permet à un attaquant non authentifié ayant un accès réseau au contrôleur de domaine d'établir un canal sécurisé vulnérable. Cela permet de réinitialiser le mot de passe du compte ordinateur du DC à une valeur vide (chaîne vide).</p>","reco":"<ul><li>Appliquer le correctif de sécurité Microsoft d'août 2020 sur tous les DCs.</li><li>Activer le mode 'Enforcement' via la clé de registre <code>FullSecureChannelProtection</code>.</li></ul>","translations":null},{"id":"ad2","cat":"Active Directory","sev":"Élevée","title":"ex: Kerberoasting","desc":"<p>Le Kerberoasting permet à un utilisateur authentifié de demander un ticket de service (TGS) pour tout compte ayant un Service Principal Name (SPN). Le ticket reçu est chiffré avec le hash du mot de passe du compte de service, permettant une attaque par force brute hors ligne.</p>","reco":"<ul><li>Utiliser des mots de passe complexes de plus de 25 caractères pour les comptes de service.</li><li>Utiliser des <strong>gMSA (Group Managed Service Accounts)</strong>.</li></ul>","translations":null}];
+
+    // =================================================================
+    // 2. STATE & INIT
+    // =================================================================
+    let vulns = [];
+    let currentId = null;
+    
+    // Etat visuel de la fiche courante (est-elle affichée en anglais ?)
+    let isCurrentTranslated = false;
+
+    function init() {
+        const savedData = localStorage.getItem('vulndb_v3_pro');
+        if (savedData) {
+            vulns = JSON.parse(savedData);
+        } else {
+            vulns = JSON.parse(JSON.stringify(DEFAULT_DATA)); // Clone
+            saveData();
+        }
+
+        renderSidebar();
+        filter('All', document.querySelector('.nav-item'));
+    }
+
+    function saveData() {
+        localStorage.setItem('vulndb_v3_pro', JSON.stringify(vulns));
+    }
+
+    // =================================================================
+    // 3. RENDU
+    // =================================================================
+    function renderSidebar() {
+        const nav = document.getElementById('nav');
+        const cats = ["Active Directory", "Web", "Mobile", "Client Lourd", "Poste de Travail", "Audit 360","Cloud","Audit de Conf"];
+        
+        let html = `<div class="nav-item active" onclick="filter('All', this)"><span>Tout voir</span> <span class="badge">${vulns.length}</span></div>`;
+        cats.forEach(cat => {
+            const count = vulns.filter(v => v.cat === cat).length;
+            html += `<div class="nav-item" onclick="filter('${cat}', this)"><span>${cat}</span> <span class="badge">${count}</span></div>`;
+        });
+        nav.innerHTML = html;
+    }
+
+    function filter(cat, btn) {
+        if(btn) {
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        const filtered = cat === 'All' ? vulns : vulns.filter(v => v.cat === cat);
+        document.getElementById('breadcrumb').innerText = cat === 'All' ? "Vue d'ensemble" : cat;
+        renderGrid(filtered);
+    }
+
+    function renderGrid(data) {
+        const grid = document.getElementById('grid');
+        grid.innerHTML = '';
+        data.forEach(v => {
+            const el = document.createElement('div');
+            el.className = 'card';
+            let colorVar = getColorVar(v.sev);
+            el.style.setProperty('--sev-color', `var(--sev-${colorVar})`);
+            
+            el.innerHTML = `
+                <div class="card-header">
+                     <span class="sev-pill">${v.sev}</span>
+                </div>
+                <h3>${v.title}</h3>
+                <div class="tags">
+                    <span class="tag">${v.cat}</span>
+                </div>
+            `;
+            el.onclick = () => openPanel(v.id);
+            grid.appendChild(el);
+        });
+    }
+
+    function getColorVar(sev) {
+        if(sev === 'Critique' || sev === 'Critical') return 'crit';
+        if(sev === 'Élevée' || sev === 'High') return 'high';
+        if(sev === 'Moyen' || sev === 'Medium') return 'med';
+        if(sev === 'Faible' || sev === 'Low') return 'low';
+        return 'info'; 
+    }
+
+    // =================================================================
+    // 4. PANEL & TRANSLATION
+    // =================================================================
+    
+    function openPanel(id) {
+        currentId = id;
+        const v = vulns.find(i => i.id === id);
+        if(!v) return;
+
+        // Reset state
+        isCurrentTranslated = false;
+        updateTranslateButtonState();
+
+        // Render Original (French) Content
+        renderPanelContent(v.title, v.desc, v.reco, v.sev, v.cat);
+
+        // Fill Edit Inputs (Always original)
+        document.getElementById('edit-title').value = v.title;
+        document.getElementById('edit-cat').value = v.cat;
+        document.getElementById('edit-sev').value = v.sev;
+        document.getElementById('edit-desc').value = v.desc;
+        document.getElementById('edit-reco').value = v.reco;
+
+        // UI Reset
+        document.getElementById('read-view').classList.remove('hidden');
+        document.getElementById('edit-view').classList.add('hidden');
+        updateHeaderActions('read');
+
+        // Open
+        document.getElementById('overlay').style.display = 'block';
+        setTimeout(() => {
+            document.getElementById('overlay').style.opacity = '1';
+            document.getElementById('panel').classList.add('open');
+        }, 10);
+        document.querySelector('.panel-content').scrollTop = 0;
+    }
+
+    function renderPanelContent(title, desc, reco, sev, cat) {
+        const color = getColorVar(sev);
+        document.getElementById('read-title').innerText = title;
+        document.getElementById('read-meta').innerHTML = 
+            `<span>Catégorie: <strong style="color:var(--text-main)">${cat}</strong></span>
+             <span style="width:1px; height:15px; background:var(--border)"></span>
+             <span>Sévérité: <strong style="color:var(--sev-${color})">${sev}</strong></span>`;
+        
+        document.getElementById('read-desc').innerHTML = desc;
+        document.getElementById('read-reco').innerHTML = reco;
+    }
+
+    // --- LIVE TRANSLATION LOGIC ---
+    
+    async function translateText(text) {
+        // API Google gratuite (gtx)
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=fr&tl=en&dt=t&q=${encodeURI(text)}`;
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            // Rejoint les segments traduits
+            return data[0].map(x => x[0]).join('');
+        } catch (e) {
+            console.error("Traduction impossible:", e);
+            return text; // Fallback
+        }
+    }
+
+    async function toggleCardTranslation(btn) {
+        const v = vulns.find(i => i.id === currentId);
+        if (!v) return;
+
+        // 1. Mode Retour au Français
+        if (isCurrentTranslated) {
+            renderPanelContent(v.title, v.desc, v.reco, v.sev, v.cat);
+            isCurrentTranslated = false;
+            updateTranslateButtonState();
+            return;
+        }
+
+        // 2. Mode Traduction vers Anglais
+        btn.classList.add('loading');
+        btn.innerHTML = '<span>⏳</span> Traduction...';
+
+        // Check if cached translation exists
+        if (!v.translations) {
+            // Live Call
+            const [tTitle, tDesc, tReco] = await Promise.all([
+                translateText(v.title),
+                translateText(v.desc),
+                translateText(v.reco)
+            ]);
+            
+            // Save cache (To limit API calls)
+            v.translations = {
+                en: {
+                    title: tTitle,
+                    desc: tDesc,
+                    reco: tReco
+                }
+            };
+            saveData(); // Persist cache
+        }
+
+        // Apply
+        const en = v.translations.en;
+        renderPanelContent(en.title, en.desc, en.reco, v.sev, v.cat); // Keep sev/cat keys
+        
+        isCurrentTranslated = true;
+        btn.classList.remove('loading');
+        updateTranslateButtonState();
+    }
+
+    function updateTranslateButtonState() {
+        const btn = document.getElementById('btn-translate-toggle');
+        if (isCurrentTranslated) {
+            btn.innerHTML = '<span>🇫🇷</span> FR';
+            btn.classList.add('active');
+        } else {
+            btn.innerHTML = '<span>🇬🇧</span> EN';
+            btn.classList.remove('active');
+        }
+    }
+
+    // =================================================================
+    // 5. EDIT & COPY ACTIONS
+    // =================================================================
+
+    function toggleEditMode() {
+        // If we are editing, force back to original french first to avoid saving english text
+        if (isCurrentTranslated) {
+            const v = vulns.find(i => i.id === currentId);
+            renderPanelContent(v.title, v.desc, v.reco, v.sev, v.cat);
+            isCurrentTranslated = false;
+            updateTranslateButtonState();
+        }
+
+        document.getElementById('read-view').classList.add('hidden');
+        document.getElementById('edit-view').classList.remove('hidden');
+        updateHeaderActions('edit');
+    }
+
+    function saveAndCloseEdit() {
+        const v = vulns.find(i => i.id === currentId);
+        if(v) {
+            v.title = document.getElementById('edit-title').value;
+            v.cat = document.getElementById('edit-cat').value;
+            v.sev = document.getElementById('edit-sev').value;
+            v.desc = document.getElementById('edit-desc').value;
+            v.reco = document.getElementById('edit-reco').value;
+            
+            // Invalidate cache since content changed
+            v.translations = null; 
+            
+            saveData();
+            renderSidebar();
+            filter('All');
+            openPanel(currentId);
+        }
+    }
+
+    function updateHeaderActions(mode) {
+        const container = document.getElementById('header-actions');
+        if (mode === 'read') {
+            container.innerHTML = `
+                <button class="btn btn-edit" onclick="toggleEditMode()">✏️ Modifier</button>
+                <button class="btn btn-danger" onclick="deleteCurrent()">🗑️ Supprimer</button>
+            `;
+        } else {
+            container.innerHTML = `
+                <button class="btn btn-primary" onclick="saveAndCloseEdit()">💾 Valider</button>
+                <button class="btn btn-edit" onclick="openPanel('${currentId}')">Annuler</button>
+            `;
+        }
+    }
+
+    function addNewVuln() {
+        const newId = "new_" + Date.now();
+        const newVuln = {
+            id: newId,
+            cat: "Web",
+            sev: "Moyen",
+            title: "Nouvelle Vulnérabilité",
+            desc: "<p>Description technique...</p>",
+            reco: "<p>Action corrective...</p>"
+        };
+        vulns.unshift(newVuln);
+        saveData();
+        renderSidebar();
+        filter('All');
+        openPanel(newId);
+        toggleEditMode();
+    }
+
+    function deleteCurrent() {
+        if (confirm("Supprimer définitivement cette fiche ?")) {
+            vulns = vulns.filter(v => v.id !== currentId);
+            saveData();
+            closePanel();
+            renderSidebar();
+            filter('All');
+        }
+    }
+
+    function copyText(target, btn) {
+        let txt = "";
+        
+        // Copy what is currently visible (Original or Translated)
+        if(target === 'title') txt = document.getElementById('read-title').innerText;
+        else if(target === 'desc') txt = document.getElementById('read-desc').innerText;
+        else if(target === 'reco') txt = document.getElementById('read-reco').innerText;
+
+        navigator.clipboard.writeText(txt).then(() => {
+            const original = btn.innerHTML;
+            btn.innerHTML = `✓ Copié`;
+            btn.classList.add('copied');
+            setTimeout(() => {
+                btn.innerHTML = original;
+                btn.classList.remove('copied');
+            }, 1500);
+        });
+    }
+
+    function closePanel() {
+        document.getElementById('panel').classList.remove('open');
+        document.getElementById('overlay').style.opacity = '0';
+        setTimeout(() => document.getElementById('overlay').style.display = 'none', 300);
+        currentId = null;
+    }
+
+    document.getElementById('search').addEventListener('input', (e) => {
+        const val = e.target.value.toLowerCase();
+        const filtered = vulns.filter(v => v.title.toLowerCase().includes(val));
+        renderGrid(filtered);
+    });
+
+    function downloadBackup() {
+        const html = document.documentElement.outerHTML;
+        const updated = html.replace(/const DEFAULT_DATA = \[.*?\];/s, `const DEFAULT_DATA = ${JSON.stringify(vulns)};`);
+        
+        const blob = new Blob([updated], {type: 'text/html'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'VulnDB_Pro.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    init();
+
+</script>
+
+</body></html>
