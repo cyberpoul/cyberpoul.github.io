@@ -284,7 +284,7 @@
     const GITHUB_CONFIG = {
         OWNER: 'cyberpoul',
         REPO: 'cyberpoul.github.io',
-        FILE_PATH: 'assets/vulns.json', 
+        FILE_PATH: 'assets/vulns.json', // <-- On garde le dossier assets
         BRANCH: 'main'
     };
 
@@ -320,7 +320,7 @@
             btn.style.border = "1px dashed orange";
             btn.onclick = configureToken;
         } else {
-            btn.innerHTML = "☁️ Sauvegarder";
+            btn.innerHTML = "☁️ Sauvegarder en ligne";
             btn.style.color = "var(--accent)";
             btn.style.border = "1px solid transparent";
             btn.onclick = syncToGitHub;
