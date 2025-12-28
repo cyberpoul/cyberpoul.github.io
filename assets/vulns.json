@@ -1,0 +1,20 @@
+[
+  {
+    "id": "ad1",
+    "cat": "Active Directory",
+    "sev": "Critique",
+    "title": "ex: Zerologon (CVE-2020-1472)",
+    "desc": "<p>Une vulnérabilité critique dans le protocole Netlogon permet à un attaquant non authentifié ayant un accès réseau au contrôleur de domaine d'établir un canal sécurisé vulnérable. Cela permet de réinitialiser le mot de passe du compte ordinateur du DC à une valeur vide (chaîne vide).</p>",
+    "reco": "<ul><li>Appliquer le correctif de sécurité Microsoft d'août 2020 sur tous les DCs.</li><li>Activer le mode 'Enforcement' via la clé de registre <code>FullSecureChannelProtection</code>.</li></ul>",
+    "translations": null
+  },
+  {
+    "id": "ad2",
+    "cat": "Active Directory",
+    "sev": "Élevée",
+    "title": "ex: Kerberoasting",
+    "desc": "<p>Le Kerberoasting permet à un utilisateur authentifié de demander un ticket de service (TGS) pour tout compte ayant un Service Principal Name (SPN). Le ticket reçu est chiffré avec le hash du mot de passe du compte de service, permettant une attaque par force brute hors ligne.</p>",
+    "reco": "<ul><li>Utiliser des mots de passe complexes de plus de 25 caractères pour les comptes de service.</li><li>Utiliser des <strong>gMSA (Group Managed Service Accounts)</strong>.</li></ul>",
+    "translations": null
+  }
+]
