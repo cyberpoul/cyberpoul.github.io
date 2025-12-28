@@ -1,13 +1,5 @@
 [
   {
-    "id": "new_1766951227094",
-    "cat": "Web",
-    "sev": "Moyen",
-    "title": "Nouvelle Vulnérabilité",
-    "desc": "<p>Description...</p>",
-    "reco": "<p>Action...</p>"
-  },
-  {
     "id": "new_1766951151736",
     "cat": "Poste de Travail",
     "sev": "Moyen",
