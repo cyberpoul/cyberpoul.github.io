@@ -3,7 +3,7 @@
     "id": "ad1",
     "cat": "Active Directory",
     "sev": "Critique",
-    "title": "ex: Zerologon (CVE-2020-1471)",
+    "title": "ex: Zerologon (CVE-2020-14722)",
     "desc": "<p>Une vulnérabilité critique dans le protocole Netlogon permet à un attaquant non authentifié ayant un accès réseau au contrôleur de domaine d'établir un canal sécurisé vulnérable. Cela permet de réinitialiser le mot de passe du compte ordinateur du DC à une valeur vide (chaîne vide).</p>",
     "reco": "<ul><li>Appliquer le correctif de sécurité Microsoft d'août 2020 sur tous les DCs.</li><li>Activer le mode 'Enforcement' via la clé de registre <code>FullSecureChannelProtection</code>.</li></ul>",
     "translations": null
