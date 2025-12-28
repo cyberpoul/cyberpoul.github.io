@@ -3,7 +3,7 @@
     "id": "new_1766951151736",
     "cat": "Poste de Travail",
     "sev": "Moyen",
-    "title": "Politiques de mots de passe faibles et Hygiènes",
+    "title": "Politiques de mots de passe faibles et Hygiène",
     "desc": "<p>L'utilisation de mots de passe faibles, par défaut, ou réutilisés sur plusieurs comptes est le vecteur d'entrée le plus courant. Cela inclut les comptes de service statiques, les mots de passe admin identiques sur tout le parc, et les équipements laissés avec les identifiants constructeur.</p>",
     "reco": "<ul>\n        <li>Déployer <strong>LAPS (Local Administrator Password Solution)</strong> sur tout le parc.</li>\n        <li>Mettre en place des politiques de mots de passe fines (<strong>FGPP</strong>) pour les comptes privilégiés (longueur > 20 car.).</li>\n        <li>Utiliser un outil de bannissement de mots de passe courants (ex: Azure AD Password Protection).</li>\n        <li>Scanner le réseau pour détecter les identifiants par défaut (imprimantes, iDRAC, etc.).</li>\n    </ul>",
     "translations": null
