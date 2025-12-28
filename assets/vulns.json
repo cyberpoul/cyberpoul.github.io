@@ -1,9 +1,53 @@
 [
   {
+    "id": "new_1766951227094",
+    "cat": "Web",
+    "sev": "Moyen",
+    "title": "Nouvelle Vulnérabilité",
+    "desc": "<p>Description...</p>",
+    "reco": "<p>Action...</p>"
+  },
+  {
+    "id": "new_1766951151736",
+    "cat": "Poste de Travail",
+    "sev": "Moyen",
+    "title": "Politiques de mots de passe faibles et Hygiène",
+    "desc": "<p>L'utilisation de mots de passe faibles, par défaut, ou réutilisés sur plusieurs comptes est le vecteur d'entrée le plus courant. Cela inclut les comptes de service statiques, les mots de passe admin identiques sur tout le parc, et les équipements laissés avec les identifiants constructeur.</p>",
+    "reco": "<ul>\n        <li>Déployer <strong>LAPS (Local Administrator Password Solution)</strong> sur tout le parc.</li>\n        <li>Mettre en place des politiques de mots de passe fines (<strong>FGPP</strong>) pour les comptes privilégiés (longueur > 20 car.).</li>\n        <li>Utiliser un outil de bannissement de mots de passe courants (ex: Azure AD Password Protection).</li>\n        <li>Scanner le réseau pour détecter les identifiants par défaut (imprimantes, iDRAC, etc.).</li>\n    </ul>",
+    "translations": null
+  },
+  {
+    "id": "new_1766951120641",
+    "cat": "Active Directory",
+    "sev": "Moyen",
+    "title": "Mauvaise gestion des droits AD (ACLs, DACL, Groupes)",
+    "desc": "<p>Des configurations permissives dans les listes de contrôle d'accès (ACL) créent des chemins d'attaque invisibles (ex: groupes imbriqués, Shadow Admins). Un utilisateur standard avec un droit <code>WriteDacl</code> ou <code>ResetPassword</code> sur un objet sensible peut prendre le contrôle du domaine.</p>",
+    "reco": "<ul>\n        <li>Réaliser des audits réguliers des chemins d'attaque avec l'outil <strong>BloodHound</strong>.</li>\n        <li>Appliquer le principe du moindre privilège et nettoyer les membres des groupes à hauts privilèges.</li>\n        <li>Surveiller les modifications des ACLs sur les objets critiques.</li>\n    </ul>",
+    "translations": null
+  },
+  {
+    "id": "new_1766951055119",
+    "cat": "Web",
+    "sev": "Élevée",
+    "title": "Mouvements Latéraux : Pass-the-Hash & Pass-the-Ticket",
+    "desc": "<p>Techniques post-exploitation utilisant des crédentiels volés en mémoire. <strong>Pass-the-Hash (PtH)</strong> réutilise un hash NTLM pour s'authentifier. <strong>Pass-the-Ticket (PtT)</strong> injecte un ticket Kerberos volé (TGT/TGS) pour accéder aux ressources tant que le ticket est valide.</p>",
+    "reco": "<ul>\n        <li>Activer <strong>Windows Defender Credential Guard</strong> pour protéger la mémoire LSASS.</li>\n        <li>Utiliser <strong>LAPS</strong> pour randomiser les mots de passe administrateur local et empêcher le déplacement latéral.</li>\n        <li>Restreindre les connexions réseau des comptes locaux via GPO (Deny access to this computer from the network).</li>\n    </ul>",
+    "translations": null
+  },
+  {
+    "id": "new_1766950733443",
+    "cat": "Active Directory",
+    "sev": "Élevée",
+    "title": "Attaques par Relais NTLM",
+    "desc": "<p>L'attaquant intercepte une authentification NTLM (issue d'un poisoning ou coercition) et la relaie vers un autre serveur cible pour s'y connecter illégitimement. Cette attaque fonctionne si la cible ne requiert pas la signature des paquets.</p>",
+    "reco": "<ul>\n        <li>Activer le <strong>SMB Signing</strong> (Require Signing) sur tous les serveurs et postes de travail.</li>\n        <li>Activer le <strong>LDAP Signing</strong> et le <strong>Channel Binding</strong> sur les contrôleurs de domaine.</li>\n        <li>À long terme, désactiver NTLM au profit de Kerberos.</li>\n    </ul>",
+    "translations": null
+  },
+  {
     "id": "ad1",
     "cat": "Active Directory",
     "sev": "Critique",
-    "title": "ex: Zerologon (CVE-2020-1472)",
+    "title": "ex Zerologon (CVE-2020-1472)",
     "desc": "<p>Une vulnérabilité critique dans le protocole Netlogon permet à un attaquant non authentifié ayant un accès réseau au contrôleur de domaine d'établir un canal sécurisé vulnérable. Cela permet de réinitialiser le mot de passe du compte ordinateur du DC à une valeur vide (chaîne vide).</p>",
     "reco": "<ul><li>Appliquer le correctif de sécurité Microsoft d'août 2020 sur tous les DCs.</li><li>Activer le mode 'Enforcement' via la clé de registre <code>FullSecureChannelProtection</code>.</li></ul>",
     "translations": null
