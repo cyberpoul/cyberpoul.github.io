@@ -4,8 +4,15 @@
     "cat": "Web",
     "sev": "Moyen",
     "title": "Nouvelle Vulnérabilité",
-    "desc": "<p>Description...</p>",
-    "reco": "<p>Action...</p>"
+    "desc": "<p>Description et lieu...</p>",
+    "reco": "<p>Action...</p>",
+    "translations": {
+      "en": {
+        "title": "New Vulnerability",
+        "desc": "<p>Description and location...</p>",
+        "reco": "<p>Action...</p>"
+      }
+    }
   },
   {
     "id": "ad1",
