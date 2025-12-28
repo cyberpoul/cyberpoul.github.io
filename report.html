@@ -310,7 +310,7 @@
     }
 
     // =================================================================
-    // GESTION GITHUB (API) - CORRECTION STRICTE NETWORK ERROR
+    // GESTION GITHUB (API) - ANTI CACHE ULTIME
     // =================================================================
     function checkTokenStatus() {
         const btn = document.getElementById('btn-save');
@@ -339,12 +339,12 @@
 
     async function loadFromGitHub() {
         try {
-            // Lecture raw, pas de CORS ici généralement
+            // AJOUT: { cache: "no-store" } force le navigateur a ne pas utiliser son cache interne
             const url = `https://raw.githubusercontent.com/${GITHUB_CONFIG.OWNER}/${GITHUB_CONFIG.REPO}/${GITHUB_CONFIG.BRANCH}/${GITHUB_CONFIG.FILE_PATH}?t=${Date.now()}`;
-            const response = await fetch(url);
+            const response = await fetch(url, { cache: "no-store" }); 
             if (response.ok) {
                 vulns = await response.json();
-                console.log("Données chargées depuis GitHub");
+                console.log("Données chargées depuis GitHub (Fresh)");
                 saveLocal(); 
             }
         } catch (e) {
@@ -360,17 +360,15 @@
         btn.innerHTML = "⏳ Envoi...";
         
         try {
-            // URL de l'API standard
+            // URL API
             const apiUrl = `https://api.github.com/repos/${GITHUB_CONFIG.OWNER}/${GITHUB_CONFIG.REPO}/contents/${GITHUB_CONFIG.FILE_PATH}`;
 
-            // 1. GET SHA 
-            // Note: On retire Cache-Control dans les headers pour éviter le blocage CORS du navigateur
-            // On utilise ?t=... pour le cache-busting
+            // 1. GET SHA (Méthode clean sans paramètres qui bloquent)
             const getResp = await fetch(apiUrl + `?ref=${GITHUB_CONFIG.BRANCH}&t=${Date.now()}`, {
                 method: 'GET',
                 headers: { 
                     'Authorization': `token ${githubToken}`,
-                    'Accept': 'application/vnd.github.v3+json' // Header standard GitHub obligatoire
+                    'Accept': 'application/vnd.github.v3+json'
                 }
             });
             
